@@ -1,14 +1,17 @@
 {
   "name": "app-solicitacao-ajustes",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "",
+  "main": "src/app.js",
   "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "restart": "npm stop --if-present && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
