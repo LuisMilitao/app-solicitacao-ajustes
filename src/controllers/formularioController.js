@@ -2,7 +2,7 @@ const Formulario = require('../models/formularioModel');
 const multer = require('multer');
 const path = require('path');
 
-// Configura‡Æo do Multer para uploads de arquivos
+// Configuraï¿½ï¿½o do Multer para uploads de arquivos
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'src/uploads/');
@@ -46,7 +46,7 @@ const FormularioController = {
                         return res.status(500).send(err);
                     }
                     res.status(201).json({
-                        message: 'Formul rio criado com sucesso',
+                        message: 'Formulï¿½rio criado com sucesso',
                         id: result.insertId,
                     });
                 }
@@ -60,7 +60,7 @@ const FormularioController = {
                 return res.status(500).send(err);
             }
             if (results.length === 0) {
-                return res.status(404).json({ message: 'Formul rio nÆo encontrado' });
+                return res.status(404).json({ message: 'Formulï¿½rio nï¿½o encontrado' });
             }
             res.json(results[0]);
         });
@@ -90,9 +90,9 @@ const FormularioController = {
                     if (result.affectedRows === 0) {
                         return res
                             .status(404)
-                            .json({ message: 'Formul rio nÆo encontrado' });
+                            .json({ message: 'Formulï¿½rio nï¿½o encontrado' });
                     }
-                    res.json({ message: 'Formul rio atualizado com sucesso' });
+                    res.json({ message: 'Formulï¿½rio atualizado com sucesso' });
                 }
             );
         });
@@ -106,9 +106,9 @@ const FormularioController = {
             if (result.affectedRows === 0) {
                 return res
                     .status(404)
-                    .json({ message: 'Formul rio nÆo encontrado' });
+                    .json({ message: 'Formulï¿½rio nï¿½o encontrado' });
             }
-            res.json({ message: 'Formul rio exclu¡do com sucesso' });
+            res.json({ message: 'Formulï¿½rio excluï¿½do com sucesso' });
         });
     },
 };
