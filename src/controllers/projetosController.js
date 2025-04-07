@@ -28,7 +28,7 @@ const ProjetosController = {
                 return res.status(500).send(err);
             }
             if (results.length === 0) {
-                return res.status(404).json({ message: 'Projeto nÆo encontrado' });
+                return res.status(404).json({ message: 'Projeto nï¿½o encontrado' });
             }
             res.json(results[0]);
         });
@@ -41,7 +41,7 @@ const ProjetosController = {
                 return res.status(500).send(err);
             }
             if (result.affectedRows === 0) {
-                return res.status(404).json({ message: 'Projeto nÆo encontrado' });
+                return res.status(404).json({ message: 'Projeto nï¿½o encontrado' });
             }
             res.json({ message: 'Projeto atualizado com sucesso' });
         });
@@ -53,9 +53,9 @@ const ProjetosController = {
                 return res.status(500).send(err);
             }
             if (result.affectedRows === 0) {
-                return res.status(404).json({ message: 'Projeto nÆo encontrado' });
+                return res.status(404).json({ message: 'Projeto nï¿½o encontrado' });
             }
-            res.json({ message: 'Projeto exclu¡do com sucesso' });
+            res.json({ message: 'Projeto excluï¿½do com sucesso' });
         });
     },
 };
