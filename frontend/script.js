@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formulario = document.getElementById('formulario');
     const empresaSelect = document.getElementById('empresa_responsavel');
 
-    // Carregar empresas ao carregar a p�gina
-    fetch('http://localhost:3000/api/fornecedores')
+    // Carregar empresas ao carregar a página
+    fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores')
         .then(response => response.json())
         .then(empresas => {
             empresas.forEach(empresa => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('sugestao', document.getElementById('sugestao').value);
         formData.append('resolvido_por', document.getElementById('resolvido_por').value);
 
-        fetch('http://localhost:3000/api/formulario', {
+        fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', {
             method: 'POST',
             body: formData,
         })
