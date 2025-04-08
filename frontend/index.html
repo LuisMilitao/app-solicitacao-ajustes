@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicita��o de Ajustes</title>
+    <title>Solicitação de Ajustes</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -78,14 +78,120 @@
 <body>
     <div class="sidebar">
         <h2>Menu</h2>
-        <button onclick="mostrarFormulario('formulario-ajuste')">Formul�rio de Ajuste</button>
+        <button onclick="mostrarFormulario('formulario-ajuste')">Formulário de Ajuste</button>
         <button onclick="mostrarFormulario('formulario-fornecedor')">Cadastro de Fornecedores</button>
         <button onclick="mostrarFormulario('formulario-projeto')">Cadastro de Projetos</button>
     </div>
 
     <div class="content">
         <div id="mensagem" class="message" style="display:none;"></div>
-        <!-- (todos os formul�rios mantidos como est�o) -->
+
+        <div id="formulario-ajuste" class="form-section active">
+            <h1>Formulário de Ajuste</h1>
+            <form id="formulario">
+                <div class="form-group">
+                    <label for="numero_chamado">Número do Chamado:</label>
+                    <input type="text" id="numero_chamado" name="numero_chamado" required>
+                </div>
+                <div class="form-group">
+                    <label for="nome_projeto">Nome do Projeto:</label>
+                    <input type="text" id="nome_projeto" name="nome_projeto" required>
+                </div>
+                <div class="form-group">
+                    <label for="versao">Versão:</label>
+                    <input type="text" id="versao" name="versao">
+                </div>
+                <div class="form-group">
+                    <label for="empresa_responsavel">Empresa Responsável:</label>
+                    <select id="empresa_responsavel" name="empresa_responsavel" required>
+                        <option value="">Selecione uma empresa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contatos">Contatos:</label>
+                    <input type="text" id="contatos" name="contatos">
+                </div>
+                <div class="form-group">
+                    <label for="resumo_ajuste">Resumo do Ajuste:</label>
+                    <textarea id="resumo_ajuste" name="resumo_ajuste" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="ambiente">Ambiente:</label>
+                    <input type="text" id="ambiente" name="ambiente">
+                </div>
+                <div class="form-group">
+                    <label for="tipo_usuario">Tipo de Usuário:</label>
+                    <input type="text" id="tipo_usuario" name="tipo_usuario">
+                </div>
+                <div class="form-group">
+                    <label for="rota_para_tela">Rota para Tela:</label>
+                    <input type="text" id="rota_para_tela" name="rota_para_tela">
+                </div>
+                <div class="form-group">
+                    <label for="o_que_esta_acontecendo">O que está acontecendo?</label>
+                    <textarea id="o_que_esta_acontecendo" name="o_que_esta_acontecendo" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="midia">Upload de Mídia (Foto/Vídeo):</label>
+                    <input type="file" id="midia" name="midia" accept="image/*,video/*">
+                </div>
+                <div class="form-group">
+                    <label for="justificacao">Justificação:</label>
+                    <textarea id="justificacao" name="justificacao" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="solucao_a_ser_tomada">Solução a ser Tomada:</label>
+                    <textarea id="solucao_a_ser_tomada" name="solucao_a_ser_tomada" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sugestao">Sugestão:</label>
+                    <textarea id="sugestao" name="sugestao" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="resolvido_por">Resolvido Por:</label>
+                    <input type="text" id="resolvido_por" name="resolvido_por">
+                </div>
+                <button type="submit">Enviar Solicitação</button>
+            </form>
+        </div>
+
+        <div id="formulario-fornecedor" class="form-section">
+            <h1>Cadastro de Fornecedores</h1>
+            <form id="form-fornecedor">
+                <div class="form-group">
+                    <label for="empresa">Empresa:</label>
+                    <input type="text" id="empresa" name="empresa" required>
+                </div>
+                <div class="form-group">
+                    <label for="contatos_fornecedor">Contatos:</label>
+                    <input type="text" id="contatos_fornecedor" name="contatos">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <input type="text" id="telefone" name="telefone">
+                </div>
+                <button type="submit">Cadastrar Fornecedor</button>
+            </form>
+        </div>
+
+        <div id="formulario-projeto" class="form-section">
+            <h1>Cadastro de Projetos</h1>
+            <form id="form-projeto">
+                <div class="form-group">
+                    <label for="nome">Nome do Projeto:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="empresa_responsavel_projeto">Empresa Responsável:</label>
+                    <input type="text" id="empresa_responsavel_projeto" name="empresa_responsavel">
+                </div>
+                <button type="submit">Cadastrar Projeto</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -95,67 +201,6 @@
             });
             document.getElementById(id).classList.add('active');
         }
-
-        function exibirMensagem(texto, tipo = 'success') {
-            const mensagem = document.getElementById('mensagem');
-            mensagem.className = `message ${tipo}`;
-            mensagem.textContent = texto;
-            mensagem.style.display = 'block';
-            setTimeout(() => mensagem.style.display = 'none', 4000);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const fornecedorForm = document.getElementById('form-fornecedor');
-            const projetoForm = document.getElementById('form-projeto');
-
-            fornecedorForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const data = {
-                    empresa: document.getElementById('empresa').value,
-                    contatos: document.getElementById('contatos_fornecedor').value,
-                    email: document.getElementById('email').value,
-                    telefone: document.getElementById('telefone').value,
-                };
-
-                try {
-                    const res = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await res.json();
-                    exibirMensagem('Fornecedor cadastrado com sucesso!', 'success');
-                    fornecedorForm.reset();
-                } catch (error) {
-                    console.error('Erro ao cadastrar fornecedor:', error);
-                    exibirMensagem('Erro ao cadastrar fornecedor.', 'error');
-                }
-            });
-
-            projetoForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const data = {
-                    nome: document.getElementById('nome').value,
-                    empresa_responsavel: document.getElementById('empresa_responsavel_projeto').value,
-                };
-
-                try {
-                    const res = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await res.json();
-                    exibirMensagem('Projeto cadastrado com sucesso!', 'success');
-                    projetoForm.reset();
-                } catch (error) {
-                    console.error('Erro ao cadastrar projeto:', error);
-                    exibirMensagem('Erro ao cadastrar projeto.', 'error');
-                }
-            });
-        });
     </script>
     <script src="script.js"></script>
 </body>
