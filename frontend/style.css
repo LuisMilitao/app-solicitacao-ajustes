@@ -25,6 +25,8 @@ h1 {
 
 .form-group {
     margin-bottom: 15px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 label {
@@ -67,6 +69,7 @@ button:hover {
 
 table {
     width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
     margin-top: 20px;
 }
@@ -129,3 +132,34 @@ tr:hover {
     font-weight: bold;
     cursor: pointer;
 }
+@media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+    }
+  
+    .sidebar button {
+      width: 100%;
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+  
+    .content {
+      padding: 10px;
+    }
+  
+    .form-group label {
+      font-size: 14px;
+    }
+  
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-size: 14px;
+    }
+  }
+  

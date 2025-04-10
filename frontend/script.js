@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = {
             nome: document.getElementById('nome').value,
-            empresa_responsavel: document.getElementById('empresa_responsavel_projeto').value,
+            empresa_id: document.getElementById('empresa_responsavel_projeto').value,
         };
 
         try {
@@ -170,6 +170,55 @@ async function carregarFormularios() {
     } catch (error) {
         console.error('Erro ao carregar formulários:', error);
         exibirMensagem('Erro ao carregar formulários.', 'error');
+    }
+}
+async function carregarFornecedoresLista() {
+    try {
+        const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores');
+        const fornecedores = await response.json();
+        const tabela = document.getElementById('tabela-fornecedores').querySelector('tbody');
+        tabela.innerHTML = '';
+
+        fornecedores.forEach(f => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${f.empresa}</td>
+                <td>${f.contatos}</td>
+                <td>${f.email}</td>
+                <td>${f.telefone}</td>
+                <td>
+                    <button class="btn-editar" onclick="editarFornecedor(${f.id})">Editar</button>
+                    <button class="btn-excluir" onclick="confirmarExclusaoFornecedor(${f.id})">Excluir</button>
+                </td>
+            `;
+            tabela.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar fornecedores:', error);
+        exibirMensagem('Erro ao carregar fornecedores.', 'error');
+    }
+}
+async function carregarProjetosLista() {
+    try {
+        const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos');
+        const projetos = await response.json();
+        const tabela = document.getElementById('tabela-projetos').querySelector('tbody');
+        tabela.innerHTML = '';
+
+        projetos.forEach(p => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${p.nome}</td>
+                <td>${p.empresa || '-'}</td>
+                <td>
+                    <button class="btn-editar" onclick="editarProjeto(${p.id})">Editar</button>
+                    <button class="btn-excluir" onclick="confirmarExclusaoProjeto(${p.id})">Excluir</button>
+                </td>
+            `;
+            tabela.appendChild(row);
+        });
+    } catch (error) {
+        exibirMensagem('Erro ao carregar projetos.', 'error');
     }
 }
 
@@ -239,12 +288,162 @@ async function editarFormulario(id) {
         exibirMensagem('Erro ao carregar formulário para edição.', 'error');
     }
 }
+async function editarFornecedor(id) {
+    try {
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`);
+        const fornecedor = await response.json();
 
+        const modal = document.getElementById('modal-edicao');
+        const conteudoModal = document.getElementById('conteudo-modal');
+
+        conteudoModal.innerHTML = `
+            <h2>Editar Fornecedor</h2>
+            <form id="form-edicao-fornecedor">
+                <input type="hidden" name="id" value="${fornecedor.id}">
+                <label>Empresa: <input type="text" name="empresa" value="${fornecedor.empresa}" required></label>
+                <label>Contatos: <input type="text" name="contatos" value="${fornecedor.contatos || ''}"></label>
+                <label>E-mail: <input type="email" name="email" value="${fornecedor.email || ''}"></label>
+                <label>Telefone: <input type="text" name="telefone" value="${fornecedor.telefone || ''}"></label>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        `;
+
+        modal.style.display = 'block';
+
+        document.getElementById('form-edicao-fornecedor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                exibirMensagem('Fornecedor atualizado com sucesso!', 'success');
+                modal.style.display = 'none';
+                carregarFornecedoresLista();
+                carregarFornecedores(); // atualiza selects
+            } else {
+                exibirMensagem('Erro ao atualizar fornecedor.', 'error');
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro ao editar fornecedor:', error);
+        exibirMensagem('Erro ao carregar fornecedor.', 'error');
+    }
+}
+async function editarProjeto(id) {
+       try {
+                const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`).then(r => r.json());
+                const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores').then(r => r.json());
+        
+                const conteudoModal = document.getElementById('conteudo-modal');
+                const modal = document.getElementById('modal-edicao');
+        
+                let selectOptions = '<option value="">Selecione uma empresa</option>';
+                fornecedores.forEach(f => {
+                    selectOptions += `<option value="${f.id}" ${f.id === projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
+                });
+        
+                conteudoModal.innerHTML = `
+                    <h2>Editar Projeto</h2>
+                    <form id="form-edicao-projeto">
+                        <input type="hidden" name="id" value="${projeto.id}">
+                        <label>Nome do Projeto: <input type="text" name="nome" value="${projeto.nome}" required></label>
+                        <label>Empresa Responsável:
+                            <select name="empresa_id" required>
+                                ${selectOptions}
+                            </select>
+                        </label>
+                        <button type="submit">Salvar Alterações</button>
+                    </form>
+                `;
+        
+                modal.style.display = 'block';
+        
+                document.getElementById('form-edicao-projeto').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+        
+                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+        
+                    if (res.ok) {
+                        exibirMensagem('Projeto atualizado com sucesso!', 'success');
+                        modal.style.display = 'none';
+                        carregarProjetosLista();
+                        carregarProjetos();
+                    } else {
+                        exibirMensagem('Erro ao atualizar projeto.', 'error');
+                    }
+                });
+        
+            } catch (error) {
+                exibirMensagem('Erro ao carregar projeto.', 'error');
+            }
+        }
+        
+}
 
 // Função para confirmar exclusão
 function confirmarExclusao(id) {
     if (confirm('Tem certeza que deseja excluir este registro?')) {
         excluirFormulario(id);
+    }
+}
+function confirmarExclusaoFornecedor(id) {
+    if (confirm('Tem certeza que deseja excluir este fornecedor?')) {
+        excluirFornecedor(id);
+    }
+}
+function confirmarExclusaoProjeto(id) {
+    if (confirm('Tem certeza que deseja excluir este projeto?')) {
+        excluirProjeto(id);
+    }
+}
+
+async function excluirProjeto(id) {
+    try {
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            exibirMensagem('Projeto excluído com sucesso!', 'success');
+            carregarProjetosLista();
+            carregarProjetos(); // se usado em selects
+        } else {
+            throw new Error('Erro ao excluir projeto');
+        }
+    } catch (error) {
+        exibirMensagem('Erro ao excluir projeto.', 'error');
+    }
+}
+
+async function excluirFornecedor(id) {
+    try {
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            exibirMensagem('Fornecedor excluído com sucesso!', 'success');
+            carregarFornecedoresLista();
+            carregarFornecedores(); // atualiza selects
+        } else {
+            throw new Error('Erro ao excluir fornecedor');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir fornecedor:', error);
+        exibirMensagem('Erro ao excluir fornecedor.', 'error');
     }
 }
 
@@ -280,23 +479,38 @@ window.addEventListener('click', (event) => {
     }
 });
 
-// Adicionar botão para listagem no menu lateral
-document.querySelector('.sidebar').innerHTML += `
-    <button onclick="mostrarLista('lista-formularios')">Listar Solicitações</button>
-`;
-
 // Função para mostrar listagem
 function mostrarLista(id) {
     document.querySelectorAll('.form-section').forEach(form => {
         form.classList.remove('active');
     });
-    document.getElementById(id).classList.add('active');
-    if (id === 'lista-formularios') carregarFormularios();
+
+    const section = document.getElementById(id);
+    section.classList.add('active');
+
+    switch (id) {
+        case 'lista-formularios':
+            carregarFormularios();
+            break;
+        case 'lista-fornecedores':
+            carregarFornecedoresLista();
+            break;
+        case 'lista-projetos':
+            carregarProjetosLista(); // futura função
+            break;
+    }
 }
+
 // Torna acessível globalmente
 window.mostrarLista = mostrarLista;
 window.editarFormulario = editarFormulario;
 window.confirmarExclusao = confirmarExclusao;
 // Torna acessível globalmente
 window.mostrarFormulario = mostrarFormulario;
+window.editarFornecedor = editarFornecedor;
+window.confirmarExclusaoFornecedor = confirmarExclusaoFornecedor;
+window.editarProjeto = editarProjeto;
+window.confirmarExclusaoProjeto = confirmarExclusaoProjeto;
+
+
 });

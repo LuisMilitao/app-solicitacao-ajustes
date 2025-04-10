@@ -2,28 +2,38 @@ const db = require('../config/db');
 
 const Projetos = {
     getAll: (callback) => {
-        db.query('SELECT * FROM projetos', callback);
+        const query = `
+            SELECT projetos.id, projetos.nome, fornecedores.empresa AS empresa
+            FROM projetos
+            LEFT JOIN fornecedores ON projetos.empresa_id = fornecedores.id
+        `;
+        db.query(query, callback);
     },
-    create: (nome, empresa_responsavel, callback) => {
-        db.query(
-            'INSERT INTO projetos (nome, empresa_responsavel) VALUES (?, ?)',
-            [nome, empresa_responsavel],
-            callback
-        );
-    },
+
     getById: (id, callback) => {
-        db.query('SELECT * FROM projetos WHERE id = ?', [id], callback);
+        const query = `
+            SELECT projetos.id, projetos.nome, fornecedores.empresa AS empresa
+            FROM projetos
+            LEFT JOIN fornecedores ON projetos.empresa_id = fornecedores.id
+            WHERE projetos.id = ?
+        `;
+        db.query(query, [id], callback);
     },
+
+    create: (nome, empresa_responsavel, callback) => {
+        const query = 'INSERT INTO projetos (nome, empresa_id) VALUES (?, ?)';
+        db.query(query, [nome, empresa_responsavel], callback);
+    },
+
     update: (id, nome, empresa_responsavel, callback) => {
-        db.query(
-            'UPDATE projetos SET nome = ?, empresa_responsavel = ? WHERE id = ?',
-            [nome, empresa_responsavel, id],
-            callback
-        );
+        const query = 'UPDATE projetos SET nome = ?, empresa_id = ? WHERE id = ?';
+        db.query(query, [nome, empresa_responsavel, id], callback);
     },
+
     delete: (id, callback) => {
-        db.query('DELETE FROM projetos WHERE id = ?', [id], callback);
-    },
+        const query = 'DELETE FROM projetos WHERE id = ?';
+        db.query(query, [id], callback);
+    }
 };
 
 module.exports = Projetos;
