@@ -20,14 +20,14 @@ const Projetos = {
         db.query(query, [id], callback);
     },
 
-    create: (nome, empresa_responsavel, callback) => {
+    create: (nome, empresa_id, callback) => {
         const query = 'INSERT INTO projetos (nome, empresa_id) VALUES (?, ?)';
-        db.query(query, [nome, empresa_responsavel], callback);
+        db.query(query, [nome, empresa_id], callback);
     },
 
-    update: (id, nome, empresa_responsavel, callback) => {
+    update: (id, nome, empresa_id, callback) => {
         const query = 'UPDATE projetos SET nome = ?, empresa_id = ? WHERE id = ?';
-        db.query(query, [nome, empresa_responsavel, id], callback);
+        db.query(query, [nome, empresa_id, id], callback);
     },
 
     delete: (id, callback) => {

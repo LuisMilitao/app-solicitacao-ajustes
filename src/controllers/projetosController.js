@@ -9,8 +9,8 @@ const ProjetosController = {
     },
 
     create: (req, res) => {
-        const { nome, empresa_responsavel } = req.body;
-        Projetos.create(nome, empresa_responsavel, (err, result) => {
+        const { nome, empresa_id } = req.body;
+        Projetos.create(nome, empresa_id, (err, result) => {
             if (err) return res.status(500).send(err);
             res.status(201).json({ message: 'Projeto criado com sucesso', id: result.insertId });
         });
@@ -27,8 +27,8 @@ const ProjetosController = {
 
     update: (req, res) => {
         const { id } = req.params;
-        const { nome, empresa_responsavel } = req.body;
-        Projetos.update(id, nome, empresa_responsavel, (err, result) => {
+        const { nome, empresa_id } = req.body;
+        Projetos.update(id, nome, empresa_id, (err, result) => {
             if (err) return res.status(500).send(err);
             if (result.affectedRows === 0) return res.status(404).json({ message: 'Projeto não encontrado' });
             res.json({ message: 'Projeto atualizado com sucesso' });
