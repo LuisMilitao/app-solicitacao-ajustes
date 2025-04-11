@@ -5,10 +5,10 @@ const verificarToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
 
-  if (!token) return res.status(401).json({ message: 'Token nÆo fornecido' });
+  if (!token) return res.status(401).json({ message: 'Token nÃ£o fornecido' });
 
   jwt.verify(token, secret, (err, decoded) => {
-    if (err) return res.status(403).json({ message: 'Token inv lido' });
+    if (err) return res.status(403).json({ message: 'Token invÃ¡lido' });
     req.usuario = decoded;
     next();
   });
