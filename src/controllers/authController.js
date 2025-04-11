@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const secret = process.env.JWT_SECRET || 'segredo123';
@@ -15,7 +15,11 @@ exports.login = (req, res) => {
 
     if (!senhaValida) return res.status(401).json({ message: 'Senha incorreta' });
 
-    const token = jwt.sign({ id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario }, secret, { expiresIn: '8h' });
+    const token = jwt.sign(
+      { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario },
+      secret,
+      { expiresIn: '8h' }
+    );
 
     res.json({ token });
   });
@@ -26,8 +30,12 @@ exports.registrar = async (req, res) => {
 
   const hash = await bcrypt.hash(senha, 10);
 
-  db.query('INSERT INTO usuarios (usuario, senha) VALUES (?, ?)', [usuario, hash], (err, result) => {
-    if (err) return res.status(500).json({ message: 'Erro ao registrar' });
-    res.json({ message: 'Usuário registrado com sucesso' });
-  });
+  db.query(
+    'INSERT INTO usuarios (usuario, senha) VALUES (?, ?)',
+    [usuario, hash],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: 'Erro ao registrar' });
+      res.json({ message: 'Usuário registrado com sucesso' });
+    }
+  );
 };
