@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET || 'segredo123';
-
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
@@ -13,5 +12,4 @@ const verificarToken = (req, res, next) => {
     next();
   });
 };
-
 module.exports = verificarToken;
