@@ -389,7 +389,7 @@ async function editarProjeto(id) {
             } catch (error) {
                 exibirMensagem('Erro ao carregar projeto.', 'error');
             }
-        }
+        
         
 }
 
