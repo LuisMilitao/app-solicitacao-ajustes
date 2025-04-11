@@ -6,8 +6,8 @@ const formularioRoutes = require('./routes/formulario');
 const fornecedoresRoutes = require('./routes/fornecedores');
 const projetosRoutes = require('./routes/projetos');
 const router = express.Router();
-const verificarToken = require('../middlewares/authMiddleware');
-const authController = require('../controllers/authController');
+const verificarToken = require('./middlewares/authMiddleware');
+const authController = require('./controllers/authController');
 const authRoutes = require('./routes/authRoutes');
 const allowedOrigins = [
     'https://solicitacaoajustes.vercel.app',
