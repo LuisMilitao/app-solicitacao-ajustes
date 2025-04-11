@@ -9,6 +9,10 @@ const router = express.Router();
 const verificarToken = require('../middlewares/authMiddleware');
 const authController = require('../controllers/authController');
 const authRoutes = require('./routes/authRoutes');
+const allowedOrigins = [
+    'https://solicitacaoajustes.vercel.app',
+    'http://localhost:3000' // opcional para testes locais
+  ];
 
 
 // Login sem proteção
@@ -30,7 +34,11 @@ if (!process.env.DB_HOST) {
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+  }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
