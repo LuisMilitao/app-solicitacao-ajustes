@@ -212,7 +212,7 @@ async function carregarFormularios() {
             row.innerHTML = `
                 <td>${form.numero_chamado}</td>
                 <td>${form.nome_projeto}</td>
-                <td>${form.empresa_responsavel}</td>
+                <td>${form.nome_empresa}</td>
                 <td>${form.resumo_ajuste}</td>
                 <td>
                     <button class="btn-editar" onclick="editarFormulario(${form.id})">Editar</button>
