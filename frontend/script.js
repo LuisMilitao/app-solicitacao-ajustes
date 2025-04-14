@@ -392,7 +392,9 @@ async function editarFornecedor(id) {
 }
 async function editarProjeto(id) {
        try {
-                const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, { headers: authHeader() }).then(r => r.json());
+        const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+            headers: authHeader()
+          }).then(r => r.json());
                 const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
         
                 const conteudoModal = document.getElementById('conteudo-modal');
