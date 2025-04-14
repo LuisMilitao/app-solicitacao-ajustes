@@ -401,9 +401,11 @@ async function editarProjeto(id) {
                 const modal = document.getElementById('modal-edicao');
         
                 let selectOptions = '<option value="">Selecione uma empresa</option>';
-                fornecedores.forEach(f => {
-                    selectOptions += `<option value="${f.id}" ${f.id === projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
-                });
+                const empresaSelecionada = projeto.empresa_id || projeto.empresaId || projeto.empresa;
+
+fornecedores.forEach(f => {
+    selectOptions += `<option value="${f.id}" ${f.id == empresaSelecionada ? 'selected' : ''}>${f.empresa}</option>`;
+});
         
                 conteudoModal.innerHTML = `
                     <h2>Editar Projeto</h2>
