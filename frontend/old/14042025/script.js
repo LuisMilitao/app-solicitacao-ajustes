@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', {
             method: 'POST',
-            headers: authHeader(),
             body: formData,
         })
             .then(response => response.json())
@@ -279,7 +278,7 @@ async function carregarProjetosLista() {
 // Função para editar formulário
 async function editarFormulario(id) {
     try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`);
         const formulario = await response.json();
 
         const modal = document.getElementById('modal-edicao');
@@ -344,7 +343,7 @@ async function editarFormulario(id) {
 }
 async function editarFornecedor(id) {
     try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, { headers: authHeader() });
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`);
         const fornecedor = await response.json();
 
         const modal = document.getElementById('modal-edicao');
@@ -392,7 +391,7 @@ async function editarFornecedor(id) {
 }
 async function editarProjeto(id) {
        try {
-                const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, { headers: authHeader() }).then(r => r.json());
+                const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`).then(r => r.json());
                 const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
         
                 const conteudoModal = document.getElementById('conteudo-modal');
