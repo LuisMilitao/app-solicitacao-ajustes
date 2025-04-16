@@ -399,62 +399,75 @@ async function editarFornecedor(id) {
     }
 }
 async function editarProjeto(id) {
-       try {
-        const projeto = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+    try {
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
             headers: authHeader()
-          }).then(r => r.json());
-                const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
-        
-                const conteudoModal = document.getElementById('conteudo-modal');
-                const modal = document.getElementById('modal-edicao');
-        
-                let selectOptions = '<option value="">Selecione uma empresa</option>';
-                fornecedores.forEach(f => {
-                    selectOptions += `<option value="${f.id}" ${f.id === projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
+        });
+
+        if (!response.ok) throw new Error('Erro ao buscar projeto');
+
+        const projeto = await response.json();
+
+        const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', {
+            headers: authHeader()
+        }).then(r => r.json());
+
+        let selectOptions = '<option value="">Selecione uma empresa</option>';
+        fornecedores.forEach(f => {
+            selectOptions += `<option value="${f.id}" ${f.id == projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
+        });
+
+        const modal = document.getElementById('modal-edicao');
+        const conteudoModal = document.getElementById('conteudo-modal');
+
+        conteudoModal.innerHTML = `
+            <h2>Editar Projeto</h2>
+            <form id="form-edicao">
+                <input type="hidden" name="id" value="${projeto.id}">
+                <label>Nome do Projeto:
+                    <input type="text" name="nome_projeto" value="${projeto.nome_projeto || ''}" required>
+                </label>
+                <label>Empresa Responsável:
+                    <select name="empresa_id" required>${selectOptions}</select>
+                </label>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        `;
+
+        modal.style.display = 'block';
+
+        document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...authHeader()
+                    },
+                    body: JSON.stringify(data)
                 });
-        
-                conteudoModal.innerHTML = `
-                    <h2>Editar Projeto</h2>
-                    <form id="form-edicao-projeto">
-                        <input type="hidden" name="id" value="${projeto.id}">
-                        <label>Nome do Projeto: <input type="text" name="nome" value="${projeto.nome}" required></label>
-                        <label>Empresa Responsável:
-                            <select name="empresa_id" required>
-                                ${selectOptions}
-                            </select>
-                        </label>
-                        <button type="submit">Salvar Alterações</button>
-                    </form>
-                `;
-        
-                modal.style.display = 'block';
-        
-                document.getElementById('form-edicao-projeto').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    const data = Object.fromEntries(formData.entries());
-        
-                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', ...authHeader() },
-                        body: JSON.stringify(data)
-                    });
-        
-                    if (res.ok) {
-                        exibirMensagem('Projeto atualizado com sucesso!', 'success');
-                        modal.style.display = 'none';
-                        carregarProjetosLista();
-                        
-                    } else {
-                        exibirMensagem('Erro ao atualizar projeto.', 'error');
-                    }
-                });
-        
+
+                if (res.ok) {
+                    exibirMensagem('Projeto atualizado com sucesso!', 'success');
+                    modal.style.display = 'none';
+                    carregarProjetos();
+                } else {
+                    throw new Error('Falha na atualização');
+                }
             } catch (error) {
-                exibirMensagem('Erro ao carregar projeto.', 'error');
+                console.error('Erro ao atualizar projeto:', error);
+                exibirMensagem('Erro ao atualizar projeto.', 'error');
             }
-        
-        
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar projeto:', error);
+        exibirMensagem('Erro ao carregar projeto para edição.', 'error');
+    }
 }
 
 // Função para confirmar exclusão
