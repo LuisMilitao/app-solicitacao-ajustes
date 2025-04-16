@@ -217,6 +217,7 @@ async function carregarFormularios() {
                 <td>
                     <button class="btn-editar" onclick="editarFormulario(${form.id})">Editar</button>
                     <button class="btn-excluir" onclick="confirmarExclusao(${form.id})">Excluir</button>
+                    <button class="btn-imprimir" onclick="imprimirFormulario(${form.id})">🖨️</button>
                 </td>
             `;
             tabela.appendChild(row);
@@ -243,6 +244,7 @@ async function carregarFornecedoresLista() {
                 <td>
                     <button class="btn-editar" onclick="editarFornecedor(${f.id})">Editar</button>
                     <button class="btn-excluir" onclick="confirmarExclusaoFornecedor(${f.id})">Excluir</button>
+                    <button class="btn-imprimir" onclick="imprimirFormulario(${form.id})">🖨️</button>
                 </td>
             `;
             tabela.appendChild(row);
@@ -267,6 +269,7 @@ async function carregarProjetosLista() {
                 <td>
                     <button class="btn-editar" onclick="editarProjeto(${p.id})">Editar</button>
                     <button class="btn-excluir" onclick="confirmarExclusaoProjeto(${p.id})">Excluir</button>
+                    <button class="btn-imprimir" onclick="imprimirFormulario(${form.id})">🖨️</button>
                 </td>
             `;
             tabela.appendChild(row);
@@ -591,6 +594,46 @@ window.editarFornecedor = editarFornecedor;
 window.confirmarExclusaoFornecedor = confirmarExclusaoFornecedor;
 window.editarProjeto = editarProjeto;
 window.confirmarExclusaoProjeto = confirmarExclusaoProjeto;
+window.imprimirFormulario = async function (id) {
+    try {
+        const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        });
 
+        const form = await res.json();
+        const printArea = document.getElementById('print-area');
 
+        printArea.innerHTML = `
+            <style>
+                body { font-family: Arial; padding: 20px; }
+                h2 { text-align: center; }
+                .linha { margin-bottom: 10px; }
+                .label { font-weight: bold; }
+            </style>
+            <h2>Solicitação de Ajuste #${form.numero_chamado}</h2>
+            <div class="linha"><span class="label">Projeto:</span> ${form.nome_projeto}</div>
+            <div class="linha"><span class="label">Empresa:</span> ${form.nome_empresa || form.empresa_responsavel}</div>
+            <div class="linha"><span class="label">Versão:</span> ${form.versao || '-'}</div>
+            <div class="linha"><span class="label">Contatos:</span> ${form.contatos || '-'}</div>
+            <div class="linha"><span class="label">Resumo:</span> ${form.resumo_ajuste || '-'}</div>
+            <div class="linha"><span class="label">Ambiente:</span> ${form.ambiente || '-'}</div>
+            <div class="linha"><span class="label">Tipo de Usuário:</span> ${form.tipo_usuario || '-'}</div>
+            <div class="linha"><span class="label">Rota para Tela:</span> ${form.rota_para_tela || '-'}</div>
+            <div class="linha"><span class="label">Descrição:</span> ${form.o_que_esta_acontecendo || '-'}</div>
+            <div class="linha"><span class="label">Justificação:</span> ${form.justificacao || '-'}</div>
+            <div class="linha"><span class="label">Solução:</span> ${form.solucao_a_ser_tomada || '-'}</div>
+            <div class="linha"><span class="label">Sugestão:</span> ${form.sugestao || '-'}</div>
+            <div class="linha"><span class="label">Resolvido por:</span> ${form.resolvido_por || '-'}</div>
+            ${form.midia_url ? `<div class="linha"><span class="label">Mídia:</span> <a href="${form.midia_url}" target="_blank">${form.midia_url}</a></div>` : ''}
+        `;
+
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(printArea.innerHTML);
+        printWindow.document.close();
+        printWindow.print();
+    } catch (err) {
+        alert('Erro ao carregar dados para impressão.');
+        console.error(err);
+    }
+}
 });

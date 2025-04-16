@@ -29,7 +29,7 @@ const Formulario = {
     },
 
     getById: (id, callback) => {
-        db.query('SELECT * FROM formulario WHERE id = ?', [id], callback);
+        db.query('SELECT f.*, fr.empresa AS nome_empresa FROM formulario f LEFT JOIN fornecedores fr ON f.empresa_responsavel = fr.id WHERE f.id = ?', [id], callback);
     },
 
     update: (
