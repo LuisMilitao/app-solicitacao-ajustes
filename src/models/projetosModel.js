@@ -12,7 +12,7 @@ const Projetos = {
 
     getById: (id, callback) => {
         const query = `
-            SELECT projetos.id, projetos.nome, fornecedores.empresa AS empresa
+            SELECT projetos.id, projetos.nome AS nome_projeto, fornecedores.empresa AS empresa
             FROM projetos
             LEFT JOIN fornecedores ON projetos.empresa_id = fornecedores.id
             WHERE projetos.id = ?
