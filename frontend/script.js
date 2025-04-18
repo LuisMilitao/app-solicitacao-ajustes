@@ -299,7 +299,6 @@ async function editarFormulario(id) {
             <form id="form-edicao">
                 <input type="hidden" name="id" value="${formulario.id}">
                 <label>Número do Chamado: <input type="text" name="numero_chamado" value="${formulario.numero_chamado}" required></label>
-                <label>Nome do Projeto: <input type="text" name="nome_projeto" value="${formulario.nome_projeto}" required></label>
                 <label>Versão: <input type="text" name="versao" value="${formulario.versao || ''}"></label>
                 <label>Empresa Responsável:
                     <select name="empresa_responsavel" required>${selectOptions}</select>
