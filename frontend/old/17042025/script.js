@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res.ok) {
             localStorage.setItem('token', data.token);
             document.getElementById('login-section').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
             content.style.display = 'block';
             sidebar.style.display = 'block';
             carregarFornecedores();
@@ -427,7 +426,7 @@ async function editarProjeto(id) {
             <form id="form-edicao">
                 <input type="hidden" name="id" value="${projeto.id}">
                 <label>Nome do Projeto:
-                    <input type="text" name="nome" value="${projeto.nome || ''}" required>
+                    <input type="text" name="nome_projeto" value="${projeto.nome_projeto || ''}" required>
                 </label>
                 <label>Empresa Responsável:
                     <select name="empresa_id" required>${selectOptions}</select>
