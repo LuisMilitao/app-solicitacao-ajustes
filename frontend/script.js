@@ -124,7 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const formData = new FormData(formulario);
-        formData.append('midia', document.getElementById('midia')?.files[0]);
+        const midiaInput = document.getElementById('midia');
+        if (midiaInput?.files.length > 0) {
+            formData.append('midia', midiaInput.files[0]);
+        }
 
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', {
             method: 'POST',

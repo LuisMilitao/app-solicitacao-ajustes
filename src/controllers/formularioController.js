@@ -13,7 +13,17 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage,
+    fileFilter: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov'].includes(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Tipo de arquivo não suportado.'));
+      }
+    }
+  });
 
 const FormularioController = {
     getAll: (req, res) => {
@@ -24,6 +34,9 @@ const FormularioController = {
     },
 
     create: (req, res) => {
+        if (!req.body.numero_chamado || !req.body.nome_projeto) {
+            return res.status(400).json({ message: 'Campos obrigatórios ausentes' });
+        }
         upload.single('midia')(req, res, (err) => {
             if (err) return res.status(500).send(err);
 
