@@ -29,32 +29,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const usuario = document.getElementById('usuario').value;
         const senha = document.getElementById('senha').value;
 
-    try {
-        const res = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeader() },
-            body: JSON.stringify({ usuario, senha })
-        });
+        try {
+            const res = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...authHeader() },
+                body: JSON.stringify({ usuario, senha })
+            });
 
-        const data = await res.json();
-        console.log('[DEBUG] Resposta do login:', data);
+            const data = await res.json();
+            console.log('[DEBUG] Resposta do login:', data);
 
 
-        if (res.ok) {
-            localStorage.setItem('token', data.token);
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
-            content.style.display = 'block';
-            sidebar.style.display = 'block';
-            carregarFornecedores();
-            carregarProjetos();
-            carregarFormularios();
-        } else {
-            exibirMensagem(data.message || 'Erro ao autenticar', 'error');
+            if (res.ok) {
+                localStorage.setItem('token', data.token);
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                content.style.display = 'block';
+                sidebar.style.display = 'block';
+                carregarFornecedores();
+                carregarProjetos();
+                carregarFormularios();
+            } else {
+                exibirMensagem(data.message || 'Erro ao autenticar', 'error');
+            }
+        } catch (error) {
+            exibirMensagem('Erro na conexão com servidor', 'error');
         }
-    } catch (error) {
-        exibirMensagem('Erro na conexão com servidor', 'error');
-    }
     });
     if (!localStorage.getItem('token')) {
         content.style.display = 'none';
@@ -73,7 +73,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (empresaProjetoSelect) empresaProjetoSelect.innerHTML = '<option value="">Selecione uma empresa</option>';
 
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() })
-            .then(response => response.json())
+            .then(async response => {
+                try {
+                    const data = await response.json();
+                    if (response.ok) {
+                        exibirMensagem('Solicitação enviada com sucesso!', 'success');
+                        formulario.reset();
+                    } else {
+                        exibirMensagem(data.message || 'Erro ao enviar solicitação.', 'error');
+                    }
+                } catch (e) {
+                    exibirMensagem('Erro inesperado no servidor.', 'error');
+                    console.error('Resposta inválida:', e);
+                }
+            })
             .then(empresas => {
                 empresas.forEach(empresa => {
                     if (empresaSelect) {
@@ -117,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    
-    
+
+
 
     formulario?.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -164,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await res.json();
             exibirMensagem('Fornecedor cadastrado com sucesso!', 'success');
             fornecedorForm.reset();
-            
+
         } catch (error) {
             console.error('Erro ao cadastrar fornecedor:', error);
             exibirMensagem('Erro ao cadastrar fornecedor.', 'error');
@@ -188,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await res.json();
             exibirMensagem('Projeto cadastrado com sucesso!', 'success');
             projetoForm.reset();
-            
+
         } catch (error) {
             console.error('Erro ao cadastrar projeto:', error);
             exibirMensagem('Erro ao cadastrar projeto.', 'error');
@@ -203,17 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(id)?.classList.add('active');
     }
     // Adicionar após as funções existentes
-// Função para carregar todos os formulários
-async function carregarFormularios() {
-    try {
-        const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', { headers: authHeader() });
-        const formularios = await response.json();
-        const tabela = document.getElementById('tabela-formularios').querySelector('tbody');
-        tabela.innerHTML = '';
-        
-        formularios.forEach(form => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+    // Função para carregar todos os formulários
+    async function carregarFormularios() {
+        try {
+            const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', { headers: authHeader() });
+            const formularios = await response.json();
+            const tabela = document.getElementById('tabela-formularios').querySelector('tbody');
+            tabela.innerHTML = '';
+
+            formularios.forEach(form => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                 <td>${form.numero_chamado}</td>
                 <td>${form.nome_projeto}</td>
                 <td>${form.nome_empresa}</td>
@@ -224,23 +237,23 @@ async function carregarFormularios() {
                     <button class="btn-imprimir" onclick="imprimirFormulario(${form.id})">Imprimir</button>
                 </td>
             `;
-            tabela.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Erro ao carregar formulários:', error);
-        exibirMensagem('Erro ao carregar formulários.', 'error');
+                tabela.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar formulários:', error);
+            exibirMensagem('Erro ao carregar formulários.', 'error');
+        }
     }
-}
-async function carregarFornecedoresLista() {
-    try {
-        const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() });
-        const fornecedores = await response.json();
-        const tabela = document.getElementById('tabela-fornecedores').querySelector('tbody');
-        tabela.innerHTML = '';
+    async function carregarFornecedoresLista() {
+        try {
+            const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() });
+            const fornecedores = await response.json();
+            const tabela = document.getElementById('tabela-fornecedores').querySelector('tbody');
+            tabela.innerHTML = '';
 
-        fornecedores.forEach(f => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+            fornecedores.forEach(f => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                 <td>${f.empresa}</td>
                 <td>${f.contatos}</td>
                 <td>${f.email}</td>
@@ -250,23 +263,23 @@ async function carregarFornecedoresLista() {
                     <button class="btn-excluir" onclick="confirmarExclusaoFornecedor(${f.id})">Excluir</button>
                 </td>
             `;
-            tabela.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Erro ao carregar fornecedores:', error);
-        exibirMensagem('Erro ao carregar fornecedores.', 'error');
+                tabela.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar fornecedores:', error);
+            exibirMensagem('Erro ao carregar fornecedores.', 'error');
+        }
     }
-}
-async function carregarProjetosLista() {
-    try {
-        const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', { headers: authHeader() });
-        const projetos = await response.json();
-        const tabela = document.getElementById('tabela-projetos').querySelector('tbody');
-        tabela.innerHTML = '';
+    async function carregarProjetosLista() {
+        try {
+            const response = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', { headers: authHeader() });
+            const projetos = await response.json();
+            const tabela = document.getElementById('tabela-projetos').querySelector('tbody');
+            tabela.innerHTML = '';
 
-        projetos.forEach(p => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+            projetos.forEach(p => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                 <td>${p.nome}</td>
                 <td>${p.empresa || '-'}</td>
                 <td>
@@ -274,30 +287,30 @@ async function carregarProjetosLista() {
                     <button class="btn-excluir" onclick="confirmarExclusaoProjeto(${p.id})">Excluir</button>
                 </td>
             `;
-            tabela.appendChild(row);
-        });
-    } catch (error) {
-        exibirMensagem('Erro ao carregar projetos.', 'error');
+                tabela.appendChild(row);
+            });
+        } catch (error) {
+            exibirMensagem('Erro ao carregar projetos.', 'error');
+        }
     }
-}
 
-// Função para editar formulário
-async function editarFormulario(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
-        const formulario = await response.json();
+    // Função para editar formulário
+    async function editarFormulario(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
+            const formulario = await response.json();
 
-        const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
+            const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
 
-        let selectOptions = '<option value="">Selecione uma empresa</option>';
-        fornecedores.forEach(f => {
-            selectOptions += `<option value="${f.id}" ${f.id == formulario.empresa_responsavel ? 'selected' : ''}>${f.empresa}</option>`;
-        });
+            let selectOptions = '<option value="">Selecione uma empresa</option>';
+            fornecedores.forEach(f => {
+                selectOptions += `<option value="${f.id}" ${f.id == formulario.empresa_responsavel ? 'selected' : ''}>${f.empresa}</option>`;
+            });
 
-        const modal = document.getElementById('modal-edicao');
-        const conteudoModal = document.getElementById('conteudo-modal');
+            const modal = document.getElementById('modal-edicao');
+            const conteudoModal = document.getElementById('conteudo-modal');
 
-        conteudoModal.innerHTML = `
+            conteudoModal.innerHTML = `
             <h2>Editar Solicitação #${formulario.numero_chamado}</h2>
             <form id="form-edicao">
                 <input type="hidden" name="id" value="${formulario.id}">
@@ -320,49 +333,49 @@ async function editarFormulario(id) {
             </form>
         `;
 
-        modal.style.display = 'block';
+            modal.style.display = 'block';
 
-        document.getElementById('form-edicao').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+            document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
 
-            try {
-                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json', ...authHeader()
-                    },
-                    body: JSON.stringify(data)
-                });
+                try {
+                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json', ...authHeader()
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-                if (res.ok) {
-                    exibirMensagem('Formulário atualizado com sucesso!', 'success');
-                    modal.style.display = 'none';
-                    carregarFormularios();
-                } else {
-                    throw new Error('Falha na atualização');
+                    if (res.ok) {
+                        exibirMensagem('Formulário atualizado com sucesso!', 'success');
+                        modal.style.display = 'none';
+                        carregarFormularios();
+                    } else {
+                        throw new Error('Falha na atualização');
+                    }
+                } catch (error) {
+                    console.error('Erro ao atualizar:', error);
+                    exibirMensagem('Erro ao atualizar formulário.', 'error');
                 }
-            } catch (error) {
-                console.error('Erro ao atualizar:', error);
-                exibirMensagem('Erro ao atualizar formulário.', 'error');
-            }
-        });
+            });
 
-    } catch (error) {
-        console.error('Erro ao carregar formulário:', error);
-        exibirMensagem('Erro ao carregar formulário para edição.', 'error');
+        } catch (error) {
+            console.error('Erro ao carregar formulário:', error);
+            exibirMensagem('Erro ao carregar formulário para edição.', 'error');
+        }
     }
-}
-async function editarFornecedor(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, { headers: authHeader() });
-        const fornecedor = await response.json();
+    async function editarFornecedor(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, { headers: authHeader() });
+            const fornecedor = await response.json();
 
-        const modal = document.getElementById('modal-edicao');
-        const conteudoModal = document.getElementById('conteudo-modal');
+            const modal = document.getElementById('modal-edicao');
+            const conteudoModal = document.getElementById('conteudo-modal');
 
-        conteudoModal.innerHTML = `
+            conteudoModal.innerHTML = `
             <h2>Editar Fornecedor</h2>
             <form id="form-edicao-fornecedor">
                 <input type="hidden" name="id" value="${fornecedor.id}">
@@ -374,57 +387,57 @@ async function editarFornecedor(id) {
             </form>
         `;
 
-        modal.style.display = 'block';
+            modal.style.display = 'block';
 
-        document.getElementById('form-edicao-fornecedor').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+            document.getElementById('form-edicao-fornecedor').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
 
-            const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...authHeader() },
-                body: JSON.stringify(data)
+                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...authHeader() },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    exibirMensagem('Fornecedor atualizado com sucesso!', 'success');
+                    modal.style.display = 'none';
+                    carregarFornecedoresLista();
+                    // atualiza selects
+                } else {
+                    exibirMensagem('Erro ao atualizar fornecedor.', 'error');
+                }
             });
 
-            if (res.ok) {
-                exibirMensagem('Fornecedor atualizado com sucesso!', 'success');
-                modal.style.display = 'none';
-                carregarFornecedoresLista();
-                 // atualiza selects
-            } else {
-                exibirMensagem('Erro ao atualizar fornecedor.', 'error');
-            }
-        });
-
-    } catch (error) {
-        console.error('Erro ao editar fornecedor:', error);
-        exibirMensagem('Erro ao carregar fornecedor.', 'error');
+        } catch (error) {
+            console.error('Erro ao editar fornecedor:', error);
+            exibirMensagem('Erro ao carregar fornecedor.', 'error');
+        }
     }
-}
-async function editarProjeto(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
-            headers: authHeader()
-        });
+    async function editarProjeto(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+                headers: authHeader()
+            });
 
-        if (!response.ok) throw new Error('Erro ao buscar projeto');
+            if (!response.ok) throw new Error('Erro ao buscar projeto');
 
-        const projeto = await response.json();
+            const projeto = await response.json();
 
-        const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', {
-            headers: authHeader()
-        }).then(r => r.json());
+            const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', {
+                headers: authHeader()
+            }).then(r => r.json());
 
-        let selectOptions = '<option value="">Selecione uma empresa</option>';
-        fornecedores.forEach(f => {
-            selectOptions += `<option value="${f.id}" ${f.id == projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
-        });
+            let selectOptions = '<option value="">Selecione uma empresa</option>';
+            fornecedores.forEach(f => {
+                selectOptions += `<option value="${f.id}" ${f.id == projeto.empresa_id ? 'selected' : ''}>${f.empresa}</option>`;
+            });
 
-        const modal = document.getElementById('modal-edicao');
-        const conteudoModal = document.getElementById('conteudo-modal');
+            const modal = document.getElementById('modal-edicao');
+            const conteudoModal = document.getElementById('conteudo-modal');
 
-        conteudoModal.innerHTML = `
+            conteudoModal.innerHTML = `
             <h2>Editar Projeto</h2>
             <form id="form-edicao">
                 <input type="hidden" name="id" value="${projeto.id}">
@@ -438,173 +451,173 @@ async function editarProjeto(id) {
             </form>
         `;
 
-        modal.style.display = 'block';
+            modal.style.display = 'block';
 
-        document.getElementById('form-edicao').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+            document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
 
-            try {
-                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...authHeader()
-                    },
-                    body: JSON.stringify(data)
-                });
+                try {
+                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...authHeader()
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-                if (res.ok) {
-                    exibirMensagem('Projeto atualizado com sucesso!', 'success');
-                    modal.style.display = 'none';
-                    carregarProjetos();
-                } else {
-                    throw new Error('Falha na atualização');
+                    if (res.ok) {
+                        exibirMensagem('Projeto atualizado com sucesso!', 'success');
+                        modal.style.display = 'none';
+                        carregarProjetos();
+                    } else {
+                        throw new Error('Falha na atualização');
+                    }
+                } catch (error) {
+                    console.error('Erro ao atualizar projeto:', error);
+                    exibirMensagem('Erro ao atualizar projeto.', 'error');
                 }
-            } catch (error) {
-                console.error('Erro ao atualizar projeto:', error);
-                exibirMensagem('Erro ao atualizar projeto.', 'error');
+            });
+
+        } catch (error) {
+            console.error('Erro ao carregar projeto:', error);
+            exibirMensagem('Erro ao carregar projeto para edição.', 'error');
+        }
+    }
+
+    // Função para confirmar exclusão
+    function confirmarExclusao(id) {
+        if (confirm('Tem certeza que deseja excluir este registro?')) {
+            excluirFormulario(id);
+        }
+    }
+    function confirmarExclusaoFornecedor(id) {
+        if (confirm('Tem certeza que deseja excluir este fornecedor?')) {
+            excluirFornecedor(id);
+        }
+    }
+    function confirmarExclusaoProjeto(id) {
+        if (confirm('Tem certeza que deseja excluir este projeto?')) {
+            excluirProjeto(id);
+        }
+    }
+
+    async function excluirProjeto(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
+                method: 'DELETE',
+                headers: authHeader()
+            });
+
+            if (response.ok) {
+                exibirMensagem('Projeto excluído com sucesso!', 'success');
+                carregarProjetosLista();
+                // se usado em selects
+            } else {
+                throw new Error('Erro ao excluir projeto');
             }
-        });
-
-    } catch (error) {
-        console.error('Erro ao carregar projeto:', error);
-        exibirMensagem('Erro ao carregar projeto para edição.', 'error');
-    }
-}
-
-// Função para confirmar exclusão
-function confirmarExclusao(id) {
-    if (confirm('Tem certeza que deseja excluir este registro?')) {
-        excluirFormulario(id);
-    }
-}
-function confirmarExclusaoFornecedor(id) {
-    if (confirm('Tem certeza que deseja excluir este fornecedor?')) {
-        excluirFornecedor(id);
-    }
-}
-function confirmarExclusaoProjeto(id) {
-    if (confirm('Tem certeza que deseja excluir este projeto?')) {
-        excluirProjeto(id);
-    }
-}
-
-async function excluirProjeto(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/${id}`, {
-            method: 'DELETE',
-            headers: authHeader()
-        });
-
-        if (response.ok) {
-            exibirMensagem('Projeto excluído com sucesso!', 'success');
-            carregarProjetosLista();
-             // se usado em selects
-        } else {
-            throw new Error('Erro ao excluir projeto');
+        } catch (error) {
+            exibirMensagem('Erro ao excluir projeto.', 'error');
         }
-    } catch (error) {
-        exibirMensagem('Erro ao excluir projeto.', 'error');
     }
-}
 
-async function excluirFornecedor(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
-            method: 'DELETE',
-            headers: authHeader()
-        });
+    async function excluirFornecedor(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, {
+                method: 'DELETE',
+                headers: authHeader()
+            });
 
-        if (response.ok) {
-            exibirMensagem('Fornecedor excluído com sucesso!', 'success');
-            carregarFornecedoresLista();
-             // atualiza selects
-        } else {
-            throw new Error('Erro ao excluir fornecedor');
+            if (response.ok) {
+                exibirMensagem('Fornecedor excluído com sucesso!', 'success');
+                carregarFornecedoresLista();
+                // atualiza selects
+            } else {
+                throw new Error('Erro ao excluir fornecedor');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir fornecedor:', error);
+            exibirMensagem('Erro ao excluir fornecedor.', 'error');
         }
-    } catch (error) {
-        console.error('Erro ao excluir fornecedor:', error);
-        exibirMensagem('Erro ao excluir fornecedor.', 'error');
     }
-}
 
-// Função para excluir formulário
-async function excluirFormulario(id) {
-    try {
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-            method: 'DELETE',
-            headers: authHeader()
-        });
-        
-        if (response.ok) {
-            exibirMensagem('Registro excluído com sucesso!', 'success');
-            carregarFormularios();
-        } else {
-            throw new Error('Erro ao excluir registro');
+    // Função para excluir formulário
+    async function excluirFormulario(id) {
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+                method: 'DELETE',
+                headers: authHeader()
+            });
+
+            if (response.ok) {
+                exibirMensagem('Registro excluído com sucesso!', 'success');
+                carregarFormularios();
+            } else {
+                throw new Error('Erro ao excluir registro');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir formulário:', error);
+            exibirMensagem('Erro ao excluir registro.', 'error');
         }
-    } catch (error) {
-        console.error('Erro ao excluir formulário:', error);
-        exibirMensagem('Erro ao excluir registro.', 'error');
     }
-}
 
-// Fechar modal ao clicar no X
-document.querySelector('.close')?.addEventListener('click', () => {
-    document.getElementById('modal-edicao').style.display = 'none';
-});
-
-// Fechar modal ao clicar fora dele
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('modal-edicao');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-// Função para mostrar listagem
-function mostrarLista(id) {
-    document.querySelectorAll('.form-section').forEach(form => {
-        form.classList.remove('active');
+    // Fechar modal ao clicar no X
+    document.querySelector('.close')?.addEventListener('click', () => {
+        document.getElementById('modal-edicao').style.display = 'none';
     });
 
-    const section = document.getElementById(id);
-    section.classList.add('active');
+    // Fechar modal ao clicar fora dele
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('modal-edicao');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 
-    switch (id) {
-        case 'lista-formularios':
-            carregarFormularios();
-            break;
-        case 'lista-fornecedores':
-            carregarFornecedoresLista();
-            break;
-        case 'lista-projetos':
-            carregarProjetosLista(); // futura função
-            break;
-    }
-}
-
-// Torna acessível globalmente
-window.mostrarLista = mostrarLista;
-window.editarFormulario = editarFormulario;
-window.confirmarExclusao = confirmarExclusao;
-// Torna acessível globalmente
-window.mostrarFormulario = mostrarFormulario;
-window.editarFornecedor = editarFornecedor;
-window.confirmarExclusaoFornecedor = confirmarExclusaoFornecedor;
-window.editarProjeto = editarProjeto;
-window.confirmarExclusaoProjeto = confirmarExclusaoProjeto;
-window.imprimirFormulario = async function (id) {
-    try {
-        const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    // Função para mostrar listagem
+    function mostrarLista(id) {
+        document.querySelectorAll('.form-section').forEach(form => {
+            form.classList.remove('active');
         });
 
-        const form = await res.json();
-        const printArea = document.getElementById('print-area');
+        const section = document.getElementById(id);
+        section.classList.add('active');
 
-        printArea.innerHTML = `
+        switch (id) {
+            case 'lista-formularios':
+                carregarFormularios();
+                break;
+            case 'lista-fornecedores':
+                carregarFornecedoresLista();
+                break;
+            case 'lista-projetos':
+                carregarProjetosLista(); // futura função
+                break;
+        }
+    }
+
+    // Torna acessível globalmente
+    window.mostrarLista = mostrarLista;
+    window.editarFormulario = editarFormulario;
+    window.confirmarExclusao = confirmarExclusao;
+    // Torna acessível globalmente
+    window.mostrarFormulario = mostrarFormulario;
+    window.editarFornecedor = editarFornecedor;
+    window.confirmarExclusaoFornecedor = confirmarExclusaoFornecedor;
+    window.editarProjeto = editarProjeto;
+    window.confirmarExclusaoProjeto = confirmarExclusaoProjeto;
+    window.imprimirFormulario = async function (id) {
+        try {
+            const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+
+            const form = await res.json();
+            const printArea = document.getElementById('print-area');
+
+            printArea.innerHTML = `
             <style>
                 body { font-family: Arial; padding: 20px; }
                 h2 { text-align: center; }
@@ -628,13 +641,13 @@ window.imprimirFormulario = async function (id) {
             ${form.midia_url ? `<div class="linha"><span class="label">Mídia:</span> <a href="${form.midia_url}" target="_blank">${form.midia_url}</a></div>` : ''}
         `;
 
-        const printWindow = window.open('', '', 'width=800,height=600');
-        printWindow.document.write(printArea.innerHTML);
-        printWindow.document.close();
-        printWindow.print();
-    } catch (err) {
-        alert('Erro ao carregar dados para impressão.');
-        console.error(err);
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(printArea.innerHTML);
+            printWindow.document.close();
+            printWindow.print();
+        } catch (err) {
+            alert('Erro ao carregar dados para impressão.');
+            console.error(err);
+        }
     }
-}
 });

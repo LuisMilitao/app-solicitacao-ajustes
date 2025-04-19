@@ -13,17 +13,17 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ 
+const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      if (['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov'].includes(ext)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Tipo de arquivo não suportado.'));
-      }
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov'].includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Tipo de arquivo não suportado.'));
+        }
     }
-  });
+});
 
 const FormularioController = {
     getAll: (req, res) => {
@@ -34,11 +34,18 @@ const FormularioController = {
     },
 
     create: (req, res) => {
-        if (!req.body.numero_chamado || !req.body.nome_projeto) {
-            return res.status(400).json({ message: 'Campos obrigatórios ausentes' });
-        }
         upload.single('midia')(req, res, (err) => {
-            if (err) return res.status(500).send(err);
+            if (err) {
+                console.error('Erro no upload:', err);
+                return res.status(500).json({ message: 'Erro ao processar arquivo', error: err.message });
+            }
+
+            console.log('[DEBUG] req.body:', req.body);
+            console.log('[DEBUG] req.file:', req.file);
+
+            if (!req.body || !req.body.numero_chamado || !req.body.nome_projeto) {
+                return res.status(400).json({ message: 'Campos obrigatórios ausentes.' });
+            }
 
             const {
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
@@ -53,7 +60,10 @@ const FormularioController = {
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
                 midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
                 (err, result) => {
-                    if (err) return res.status(500).send(err);
+                    if (err) {
+                        console.error('Erro ao salvar formulário:', err);
+                        return res.status(500).send(err);
+                    }
                     res.status(201).json({ message: 'Formulário criado com sucesso', id: result.insertId });
                 }
             );
