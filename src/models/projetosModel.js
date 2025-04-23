@@ -9,7 +9,7 @@ const Projetos = {
         `;
         db.query(query, callback);
     },
-
+    
     getById: (id, callback) => {
         const query = `
             SELECT 
@@ -39,5 +39,4 @@ const Projetos = {
         db.query(query, [id], callback);
     }
 };
-
 module.exports = Projetos;
