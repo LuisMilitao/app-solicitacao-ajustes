@@ -67,11 +67,8 @@ const FormularioController = {
     },
 
     updateJson: (req, res) => {
-        atualizarFormulario(req, res, null);
         console.log('[DEBUG] Dados recebidos no updateJson:', req.body);
-        atualizarFormulario(req, res, null);
-        },
-        
+        atualizarFormulario(req, res, null);       
     },
 
     updateMultipart: (req, res) => {
