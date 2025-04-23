@@ -14,7 +14,7 @@ const Projetos = {
         const query = `
             SELECT 
                 projetos.id, 
-                projetos.nome AS nome_projeto, 
+                projetos.nome AS nome, 
                 projetos.empresa_id,
                 fornecedores.empresa AS empresa
             FROM projetos
