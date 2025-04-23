@@ -3,7 +3,6 @@ const Formulario = require('../models/formularioModel');
 const multer = require('multer');
 const path = require('path');
 
-// Configuração do Multer para uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'src/uploads/');
@@ -36,10 +35,7 @@ const FormularioController = {
 
     create: (req, res) => {
         upload.single('midia')(req, res, (err) => {
-            if (err) {
-                console.error('Erro no upload:', err);
-                return res.status(500).json({ message: 'Erro ao processar arquivo', error: err.message });
-            }
+            if (err) return res.status(500).json({ message: 'Erro ao processar arquivo', error: err.message });
 
             const {
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
@@ -70,17 +66,15 @@ const FormularioController = {
         });
     },
 
-    update: (req, res) => {
-        const isMultipart = req.headers['content-type']?.includes('multipart/form-data');
+    updateJson: (req, res) => {
+        atualizarFormulario(req, res, null);
+    },
 
-        if (isMultipart) {
-            upload.single('midia')(req, res, (err) => {
-                if (err) return res.status(500).send(err);
-                return atualizarFormulario(req, res, req.file ? `/uploads/${req.file.filename}` : null);
-            });
-        } else {
-            return atualizarFormulario(req, res, null);
-        }
+    updateMultipart: (req, res) => {
+        upload.single('midia')(req, res, (err) => {
+            if (err) return res.status(500).send(err);
+            atualizarFormulario(req, res, req.file ? `/uploads/${req.file.filename}` : null);
+        });
     },
 
     delete: (req, res) => {
@@ -90,7 +84,7 @@ const FormularioController = {
             if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
             res.json({ message: 'Formulário excluído com sucesso' });
         });
-    },
+    }
 };
 
 function atualizarFormulario(req, res, midia_url) {
