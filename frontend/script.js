@@ -71,22 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function carregarFornecedores() {
         if (empresaSelect) empresaSelect.innerHTML = '<option value="">Selecione uma empresa</option>';
         if (empresaProjetoSelect) empresaProjetoSelect.innerHTML = '<option value="">Selecione uma empresa</option>';
-
+    
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() })
-            .then(async response => {
-                try {
-                    const data = await response.json();
-                    if (response.ok) {
-                        exibirMensagem('Solicitação enviada com sucesso!', 'success');
-                        formulario.reset();
-                    } else {
-                        exibirMensagem(data.message || 'Erro ao enviar solicitação.', 'error');
-                    }
-                } catch (e) {
-                    exibirMensagem('Erro inesperado no servidor.', 'error');
-                    console.error('Resposta inválida:', e);
-                }
-            })
+            .then(response => response.json())
             .then(empresas => {
                 empresas.forEach(empresa => {
                     if (empresaSelect) {
@@ -108,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 exibirMensagem('Erro ao carregar empresas.', 'error');
             });
     }
+    
 
     function carregarProjetos() {
         if (!projetoSelect) return;

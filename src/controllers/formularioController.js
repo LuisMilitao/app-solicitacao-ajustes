@@ -1,3 +1,4 @@
+
 const Formulario = require('../models/formularioModel');
 const multer = require('multer');
 const path = require('path');
@@ -40,13 +41,6 @@ const FormularioController = {
                 return res.status(500).json({ message: 'Erro ao processar arquivo', error: err.message });
             }
 
-            console.log('[DEBUG] req.body:', req.body);
-            console.log('[DEBUG] req.file:', req.file);
-
-            if (!req.body || !req.body.numero_chamado || !req.body.nome_projeto) {
-                return res.status(400).json({ message: 'Campos obrigatórios ausentes.' });
-            }
-
             const {
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
@@ -60,10 +54,7 @@ const FormularioController = {
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
                 midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
                 (err, result) => {
-                    if (err) {
-                        console.error('Erro ao salvar formulário:', err);
-                        return res.status(500).send(err);
-                    }
+                    if (err) return res.status(500).send(err);
                     res.status(201).json({ message: 'Formulário criado com sucesso', id: result.insertId });
                 }
             );
@@ -80,29 +71,16 @@ const FormularioController = {
     },
 
     update: (req, res) => {
-        upload.single('midia')(req, res, (err) => {
-            if (err) return res.status(500).send(err);
+        const isMultipart = req.headers['content-type']?.includes('multipart/form-data');
 
-            const { id } = req.params;
-            const {
-                numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
-                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
-            } = req.body;
-
-            const midia_url = req.file ? `/uploads/${req.file.filename}` : null;
-
-            Formulario.update(
-                id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
-                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
-                (err, result) => {
-                    if (err) return res.status(500).send(err);
-                    if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
-                    res.json({ message: 'Formulário atualizado com sucesso' });
-                }
-            );
-        });
+        if (isMultipart) {
+            upload.single('midia')(req, res, (err) => {
+                if (err) return res.status(500).send(err);
+                return atualizarFormulario(req, res, req.file ? `/uploads/${req.file.filename}` : null);
+            });
+        } else {
+            return atualizarFormulario(req, res, null);
+        }
     },
 
     delete: (req, res) => {
@@ -114,5 +92,25 @@ const FormularioController = {
         });
     },
 };
+
+function atualizarFormulario(req, res, midia_url) {
+    const { id } = req.params;
+    const {
+        numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
+        resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
+        justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
+    } = req.body;
+
+    Formulario.update(
+        id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
+        resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
+        midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+        (err, result) => {
+            if (err) return res.status(500).send(err);
+            if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
+            res.json({ message: 'Formulário atualizado com sucesso' });
+        }
+    );
+}
 
 module.exports = FormularioController;
