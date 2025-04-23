@@ -89,7 +89,7 @@ const FormularioController = {
 };
 
 function atualizarFormulario(req, res, midia_url) {
-    const { id } = req.params;
+    const id = req.params.id || req.body.id;
     const {
         numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
         resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
