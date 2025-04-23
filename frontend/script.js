@@ -301,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
             conteudoModal.innerHTML = `
             <h2>Editar Solicitação #${formulario.numero_chamado}</h2>
             <form id="form-edicao">
+            <label>Nome do Projeto:
+            <input type="text" name="nome_projeto" value="${formulario.nome_projeto || ''}" required>
+            </label>
                 <input type="hidden" name="id" value="${formulario.id}">
                 <label>Número do Chamado: <input type="text" name="numero_chamado" value="${formulario.numero_chamado}" required></label>
                 <label>Versão: <input type="text" name="versao" value="${formulario.versao || ''}"></label>
@@ -326,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('form-edicao').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
+                formData.append('nome_projeto', document.getElementById('nome_projeto').value || 'Projeto Padrão');
                 const data = Object.fromEntries(formData.entries());
 
                 try {
