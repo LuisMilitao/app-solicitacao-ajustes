@@ -43,6 +43,16 @@ const ProjetosController = {
             res.json({ message: 'Projeto excluído com sucesso' });
         });
     },
+    getByName: (req, res) => {
+        const { nome } = req.params;
+        Projetos.getByName(nome, (err, results) => {
+            if (err) return res.status(500).send(err);
+            if (results.length === 0) return res.status(404).json({ message: 'Projeto não encontrado' });
+            res.json(results[0]);
+        });
+    },
 };
+
+
 
 module.exports = ProjetosController;

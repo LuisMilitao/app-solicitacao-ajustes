@@ -117,7 +117,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 exibirMensagem('Erro ao carregar projetos.', 'error');
             });
     }
-
+    projetoSelect?.addEventListener('change', async function () {
+        const nomeProjetoSelecionado = projetoSelect.value;
+        if (!nomeProjetoSelecionado) return;
+    
+        try {
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/nome/${encodeURIComponent(nomeProjetoSelecionado)}`, { headers: authHeader() });
+            const projeto = await response.json();
+    
+            if (projeto) {
+                document.getElementById('empresa_responsavel').value = projeto.empresa_id;
+                document.getElementById('contatos').value = projeto.contatos || '';
+            }
+        } catch (error) {
+            console.error('Erro ao buscar dados do projeto:', error);
+            exibirMensagem('Erro ao carregar dados do projeto.', 'error');
+        }
+    });
 
 
 
