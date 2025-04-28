@@ -12,12 +12,17 @@ const Projetos = {
     },
     getAll: (callback) => {
         const query = `
-            SELECT projetos.id, projetos.nome, fornecedores.empresa AS empresa
+            SELECT 
+                projetos.id, 
+                projetos.nome, 
+                fornecedores.empresa AS empresa,
+                fornecedores.contatos AS contatos
             FROM projetos
             LEFT JOIN fornecedores ON projetos.empresa_id = fornecedores.id
         `;
         db.query(query, callback);
     },
+    
     getById: (id, callback) => {
         const query = `
             SELECT 

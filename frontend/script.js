@@ -299,82 +299,139 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Função para editar formulário
-    async function editarFormulario(id) {
-        try {
-            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
-            const formulario = await response.json();
+async function editarFormulario(id) {
+    try {
+        // 1. Buscar os dados da solicitação que quero editar
+        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
+        const formulario = await response.json();
 
-            const fornecedores = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() }).then(r => r.json());
+        // 2. Buscar a lista de projetos
+        const projetos = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', { headers: authHeader() }).then(r => r.json());
 
-            let selectOptions = '<option value="">Selecione uma empresa</option>';
-            fornecedores.forEach(f => {
-                selectOptions += `<option value="${f.id}" ${f.id == formulario.empresa_responsavel ? 'selected' : ''}>${f.empresa}</option>`;
-            });
+        // 3. Criar opções para o select de projetos
+        let selectOptions = '<option value="">Selecione um projeto</option>';
+        projetos.forEach(p => {
+            selectOptions += `<option value="${p.nome}" data-empresa="${p.empresa}" data-contatos="${p.contatos}">${p.nome}</option>`;
+        });
 
-            const modal = document.getElementById('modal-edicao');
-            const conteudoModal = document.getElementById('conteudo-modal');
+        // 4. Criar o HTML do modal
+        const modal = document.getElementById('modal-edicao');
+        const conteudoModal = document.getElementById('conteudo-modal');
 
-            conteudoModal.innerHTML = `
+        conteudoModal.innerHTML = `
             <h2>Editar Solicitação #${formulario.numero_chamado}</h2>
             <form id="form-edicao">
-            <label>Nome do Projeto:
-            <input type="text" name="nome_projeto" value="${formulario.nome_projeto || ''}" required>
-            </label>
-                <input type="hidden" name="id" value="${formulario.id}">
-                <label>Número do Chamado: <input type="text" name="numero_chamado" value="${formulario.numero_chamado}" required></label>
-                <label>Versão: <input type="text" name="versao" value="${formulario.versao || ''}"></label>
-                <label>Empresa Responsável:
-                    <select name="empresa_responsavel" required>${selectOptions}</select>
+                <label>Nome do Projeto:
+                    <select id="edit_nome_projeto" name="nome_projeto" required>${selectOptions}</select>
                 </label>
-                <label>Contatos: <input type="text" name="contatos" value="${formulario.contatos || ''}"></label>
-                <label>Resumo do Ajuste: <textarea name="resumo_ajuste">${formulario.resumo_ajuste || ''}</textarea></label>
-                <label>Ambiente: <input type="text" name="ambiente" value="${formulario.ambiente || ''}"></label>
-                <label>Tipo de Usuário: <input type="text" name="tipo_usuario" value="${formulario.tipo_usuario || ''}"></label>
-                <label>Rota para Tela: <input type="text" name="rota_para_tela" value="${formulario.rota_para_tela || ''}"></label>
-                <label>O que está acontecendo?: <textarea name="o_que_esta_acontecendo">${formulario.o_que_esta_acontecendo || ''}</textarea></label>
-                <label>Justificação: <textarea name="justificacao">${formulario.justificacao || ''}</textarea></label>
-                <label>Solução a Ser Tomada: <textarea name="solucao_a_ser_tomada">${formulario.solucao_a_ser_tomada || ''}</textarea></label>
-                <label>Sugestão: <textarea name="sugestao">${formulario.sugestao || ''}</textarea></label>
-                <label>Resolvido Por: <input type="text" name="resolvido_por" value="${formulario.resolvido_por || ''}"></label>
+                <input type="hidden" name="id" value="${formulario.id}">
+                <label>Empresa Responsável:
+                    <input type="text" id="edit_empresa_responsavel" name="empresa_responsavel" readonly required>
+                </label>
+                <label>Contatos:
+                    <input type="text" id="edit_contatos" name="contatos">
+                </label>
+                <label>Número do Chamado:
+                    <input type="text" name="numero_chamado" value="${formulario.numero_chamado}" required>
+                </label>
+                <label>Versão:
+                    <input type="text" name="versao" value="${formulario.versao || ''}">
+                </label>
+                <label>Resumo do Ajuste:
+                    <textarea name="resumo_ajuste">${formulario.resumo_ajuste || ''}</textarea>
+                </label>
+                <label>Ambiente:
+                    <input type="text" name="ambiente" value="${formulario.ambiente || ''}">
+                </label>
+                <label>Tipo de Usuário:
+                    <input type="text" name="tipo_usuario" value="${formulario.tipo_usuario || ''}">
+                </label>
+                <label>Rota para Tela:
+                    <input type="text" name="rota_para_tela" value="${formulario.rota_para_tela || ''}">
+                </label>
+                <label>O que está acontecendo?:
+                    <textarea name="o_que_esta_acontecendo">${formulario.o_que_esta_acontecendo || ''}</textarea>
+                </label>
+                <label>Justificação:
+                    <textarea name="justificacao">${formulario.justificacao || ''}</textarea>
+                </label>
+                <label>Solução a Ser Tomada:
+                    <textarea name="solucao_a_ser_tomada">${formulario.solucao_a_ser_tomada || ''}</textarea>
+                </label>
+                <label>Sugestão:
+                    <textarea name="sugestao">${formulario.sugestao || ''}</textarea>
+                </label>
+                <label>Resolvido Por:
+                    <input type="text" name="resolvido_por" value="${formulario.resolvido_por || ''}">
+                </label>
                 <button type="submit">Salvar Alterações</button>
             </form>
         `;
 
-            modal.style.display = 'block';
+        modal.style.display = 'block';
 
-            document.getElementById('form-edicao').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                formData.append('nome_projeto', document.getElementById('nome_projeto').value || 'Projeto Padrão');
-                const data = Object.fromEntries(formData.entries());
-
-                try {
-                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json', ...authHeader()
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (res.ok) {
-                        exibirMensagem('Formulário atualizado com sucesso!', 'success');
-                        modal.style.display = 'none';
-                        carregarFormularios();
-                    } else {
-                        throw new Error('Falha na atualização');
-                    }
-                } catch (error) {
-                    console.error('Erro ao atualizar:', error);
-                    exibirMensagem('Erro ao atualizar formulário.', 'error');
-                }
-            });
-
-        } catch (error) {
-            console.error('Erro ao carregar formulário:', error);
-            exibirMensagem('Erro ao carregar formulário para edição.', 'error');
+        // 5. Selecionar o projeto atual que estava no formulário
+        const selectProjeto = document.getElementById('edit_nome_projeto');
+        if (formulario.nome_projeto) {
+            selectProjeto.value = formulario.nome_projeto;
         }
+
+        // 6. Atualizar empresa e contatos de acordo com o projeto carregado
+        function atualizarEmpresaEContatos() {
+            const selectProjeto = document.getElementById('edit_nome_projeto');
+            const projetoSelecionado = selectProjeto.value;
+        
+            // Busca a option que corresponde ao projeto
+            const optionEncontrada = Array.from(selectProjeto.options).find(option => option.value === projetoSelecionado);
+        
+            if (optionEncontrada) {
+                document.getElementById('edit_empresa_responsavel').value = optionEncontrada.dataset.empresa || '';
+                document.getElementById('edit_contatos').value = optionEncontrada.dataset.contatos || '';
+            } else {
+                document.getElementById('edit_empresa_responsavel').value = '';
+                document.getElementById('edit_contatos').value = '';
+            }
+        }
+        
+
+        // Atualizar automaticamente ao mudar projeto
+        selectProjeto.addEventListener('change', atualizarEmpresaEContatos);
+
+        // Já atualiza uma vez ao abrir o modal
+        atualizarEmpresaEContatos();
+
+        // 7. Submissão do formulário de edição
+        document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...authHeader() },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    exibirMensagem('Formulário atualizado com sucesso!', 'success');
+                    modal.style.display = 'none';
+                    carregarFormularios();
+                } else {
+                    throw new Error('Falha na atualização');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar formulário:', error);
+                exibirMensagem('Erro ao atualizar formulário.', 'error');
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar formulário para edição:', error);
+        exibirMensagem('Erro ao carregar formulário para edição.', 'error');
     }
+}
+
     async function editarFornecedor(id) {
         try {
             const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores/${id}`, { headers: authHeader() });
