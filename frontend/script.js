@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function carregarFornecedores() {
         if (empresaSelect) empresaSelect.innerHTML = '<option value="">Selecione uma empresa</option>';
         if (empresaProjetoSelect) empresaProjetoSelect.innerHTML = '<option value="">Selecione uma empresa</option>';
-    
+
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/fornecedores', { headers: authHeader() })
             .then(response => response.json())
             .then(empresas => {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 exibirMensagem('Erro ao carregar empresas.', 'error');
             });
     }
-    
+
 
     function carregarProjetos() {
         if (!projetoSelect) return;
@@ -120,11 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
     projetoSelect?.addEventListener('change', async function () {
         const nomeProjetoSelecionado = projetoSelect.value;
         if (!nomeProjetoSelecionado) return;
-    
+
         try {
             const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/nome/${encodeURIComponent(nomeProjetoSelecionado)}`, { headers: authHeader() });
             const projeto = await response.json();
-    
+
             if (projeto) {
                 document.getElementById('empresa_responsavel').value = projeto.empresa_id;
                 document.getElementById('contatos').value = projeto.contatos || '';
@@ -299,34 +299,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Função para editar formulário
-async function editarFormulario(id) {
-    try {
-        // 1. Buscar os dados da solicitação que quero editar
-        const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
-        const formulario = await response.json();
+    async function editarFormulario(id) {
+        try {
+            // 1. Buscar os dados da solicitação que quero editar
+            const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, { headers: authHeader() });
+            const formulario = await response.json();
 
-        // 2. Buscar a lista de projetos
-        const projetos = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', { headers: authHeader() }).then(r => r.json());
+            // 2. Buscar a lista de projetos
+            const projetos = await fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/projetos', { headers: authHeader() }).then(r => r.json());
 
-        // 3. Criar opções para o select de projetos
-        let selectOptions = '<option value="">Selecione um projeto</option>';
-        projetos.forEach(p => {
-            selectOptions += `<option value="${p.nome}" data-empresa="${p.empresa}" data-contatos="${p.contatos}">${p.nome}</option>`;
-        });
+            // 3. Criar opções para o select de projetos
+            let selectOptions = '<option value="">Selecione um projeto</option>';
+            projetos.forEach(p => {
+                selectOptions += `<option value="${p.nome}" data-empresa="${p.empresa}" data-empresa-id="${p.empresa_id}" data-contatos="${p.contatos}">${p.nome}</option>`;
+            });
 
-        // 4. Criar o HTML do modal
-        const modal = document.getElementById('modal-edicao');
-        const conteudoModal = document.getElementById('conteudo-modal');
+            // 4. Criar o HTML do modal
+            const modal = document.getElementById('modal-edicao');
+            const conteudoModal = document.getElementById('conteudo-modal');
 
-        conteudoModal.innerHTML = `
+            conteudoModal.innerHTML = `
             <h2>Editar Solicitação #${formulario.numero_chamado}</h2>
             <form id="form-edicao">
                 <label>Nome do Projeto:
                     <select id="edit_nome_projeto" name="nome_projeto" required>${selectOptions}</select>
                 </label>
                 <input type="hidden" name="id" value="${formulario.id}">
-                <label>Empresa Responsável:
-                    <input type="text" id="edit_empresa_responsavel" name="empresa_responsavel" readonly required>
+               <label>Empresa Responsável:
+                    <input type="text" id="edit_empresa_responsavel" readonly required>
+                    <input type="hidden" id="edit_empresa_responsavel_id" name="empresa_responsavel">
                 </label>
                 <label>Contatos:
                     <input type="text" id="edit_contatos" name="contatos">
@@ -368,69 +369,69 @@ async function editarFormulario(id) {
             </form>
         `;
 
-        modal.style.display = 'block';
+            modal.style.display = 'block';
 
-        // 5. Selecionar o projeto atual que estava no formulário
-        const selectProjeto = document.getElementById('edit_nome_projeto');
-        if (formulario.nome_projeto) {
-            selectProjeto.value = formulario.nome_projeto;
-        }
-
-        // 6. Atualizar empresa e contatos de acordo com o projeto carregado
-        function atualizarEmpresaEContatos() {
+            // 5. Selecionar o projeto atual que estava no formulário
             const selectProjeto = document.getElementById('edit_nome_projeto');
-            const projetoSelecionado = selectProjeto.value;
-        
-            // Busca a option que corresponde ao projeto
-            const optionEncontrada = Array.from(selectProjeto.options).find(option => option.value === projetoSelecionado);
-        
-            if (optionEncontrada) {
-                document.getElementById('edit_empresa_responsavel').value = optionEncontrada.dataset.empresa || '';
-                document.getElementById('edit_contatos').value = optionEncontrada.dataset.contatos || '';
-            } else {
-                document.getElementById('edit_empresa_responsavel').value = '';
-                document.getElementById('edit_contatos').value = '';
+            if (formulario.nome_projeto) {
+                selectProjeto.value = formulario.nome_projeto;
             }
-        }
-        
 
-        // Atualizar automaticamente ao mudar projeto
-        selectProjeto.addEventListener('change', atualizarEmpresaEContatos);
+            // 6. Atualizar empresa e contatos de acordo com o projeto carregado
+            function atualizarEmpresaEContatos() {
+                const selectProjeto = document.getElementById('edit_nome_projeto');
+                const projetoSelecionado = selectProjeto.value;
+                const optionEncontrada = Array.from(selectProjeto.options).find(option => option.value === projetoSelecionado);
 
-        // Já atualiza uma vez ao abrir o modal
-        atualizarEmpresaEContatos();
-
-        // 7. Submissão do formulário de edição
-        document.getElementById('form-edicao').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-
-            try {
-                const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', ...authHeader() },
-                    body: JSON.stringify(data)
-                });
-
-                if (res.ok) {
-                    exibirMensagem('Formulário atualizado com sucesso!', 'success');
-                    modal.style.display = 'none';
-                    carregarFormularios();
+                if (optionEncontrada) {
+                    document.getElementById('edit_empresa_responsavel').value = optionEncontrada.dataset.empresa || '';
+                    document.getElementById('edit_contatos').value = optionEncontrada.dataset.contatos || '';
+                    document.getElementById('edit_empresa_responsavel_id').value = optionEncontrada.dataset.empresaId || '';
                 } else {
-                    throw new Error('Falha na atualização');
+                    document.getElementById('edit_empresa_responsavel').value = '';
+                    document.getElementById('edit_contatos').value = '';
+                    document.getElementById('edit_empresa_responsavel_id').value = '';
                 }
-            } catch (error) {
-                console.error('Erro ao atualizar formulário:', error);
-                exibirMensagem('Erro ao atualizar formulário.', 'error');
             }
-        });
 
-    } catch (error) {
-        console.error('Erro ao carregar formulário para edição:', error);
-        exibirMensagem('Erro ao carregar formulário para edição.', 'error');
+
+            // Atualizar automaticamente ao mudar projeto
+            selectProjeto.addEventListener('change', atualizarEmpresaEContatos);
+
+            // Já atualiza uma vez ao abrir o modal
+            atualizarEmpresaEContatos();
+
+            // 7. Submissão do formulário de edição
+            document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', ...authHeader() },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        exibirMensagem('Formulário atualizado com sucesso!', 'success');
+                        modal.style.display = 'none';
+                        carregarFormularios();
+                    } else {
+                        throw new Error('Falha na atualização');
+                    }
+                } catch (error) {
+                    console.error('Erro ao atualizar formulário:', error);
+                    exibirMensagem('Erro ao atualizar formulário.', 'error');
+                }
+            });
+
+        } catch (error) {
+            console.error('Erro ao carregar formulário para edição:', error);
+            exibirMensagem('Erro ao carregar formulário para edição.', 'error');
+        }
     }
-}
 
     async function editarFornecedor(id) {
         try {
