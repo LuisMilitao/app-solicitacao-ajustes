@@ -1,4 +1,3 @@
-
 const Formulario = require('../models/formularioModel');
 const multer = require('multer');
 const path = require('path');
@@ -68,7 +67,7 @@ const FormularioController = {
 
     updateJson: (req, res) => {
         console.log('[DEBUG] Dados recebidos no updateJson:', req.body);
-        atualizarFormulario(req, res, null);       
+        atualizarFormulario(req, res, null);
     },
 
     updateMultipart: (req, res) => {
@@ -96,16 +95,38 @@ function atualizarFormulario(req, res, midia_url) {
         justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
     } = req.body;
 
-    Formulario.update(
-        id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
-        resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-        midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
-        (err, result) => {
+    if (midia_url === null) {
+        // Buscar o midia_url atual do formulário
+        Formulario.getById(id, (err, results) => {
             if (err) return res.status(500).send(err);
-            if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
-            res.json({ message: 'Formulário atualizado com sucesso' });
-        }
-    );
+            if (results.length === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
+
+            const midiaAtual = results[0].midia_url; // mantém a mídia existente
+
+            Formulario.update(
+                id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
+                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
+                midiaAtual, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+                (err, result) => {
+                    if (err) return res.status(500).send(err);
+                    if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
+                    res.json({ message: 'Formulário atualizado com sucesso' });
+                }
+            );
+        });
+    } else {
+        // Se veio nova mídia, usa ela
+        Formulario.update(
+            id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
+            resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
+            midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+            (err, result) => {
+                if (err) return res.status(500).send(err);
+                if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
+                res.json({ message: 'Formulário atualizado com sucesso' });
+            }
+        );
+    }
 }
 
 module.exports = FormularioController;
