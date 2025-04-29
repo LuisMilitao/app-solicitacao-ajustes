@@ -126,8 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const projeto = await response.json();
     
             if (projeto) {
-                document.getElementById('empresa_responsavel').value = projeto.empresa; // <-- CORRIGIDO
+                document.getElementById('empresa_responsavel').value = projeto.empresa; // mostra nome
                 document.getElementById('contatos').value = projeto.contatos || '';
+                document.getElementById('empresa_responsavel_id_hidden').value = projeto.empresa_id; // envia ID real
             }
         } catch (error) {
             console.error('Erro ao buscar dados do projeto:', error);
@@ -376,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (formulario.nome_projeto) {
                 selectProjeto.value = formulario.nome_projeto;
             }
+            atualizarEmpresaEContatos();
 
             // 6. Atualizar empresa e contatos de acordo com o projeto carregado
             function atualizarEmpresaEContatos() {
