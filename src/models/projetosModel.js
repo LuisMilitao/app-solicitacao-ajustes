@@ -3,10 +3,10 @@ const db = require('../config/db');
 const Projetos = {
     getByName: (nome, callback) => {
         const query = `
-            SELECT p.*, f.contatos 
-            FROM projetos p
-            JOIN fornecedores f ON p.empresa_id = f.id
-            WHERE p.nome = ?
+            SELECT p.*, f.empresa AS empresa, f.contatos 
+                FROM projetos p
+                JOIN fornecedores f ON p.empresa_id = f.id
+                WHERE p.nome = ?
         `;
         db.query(query, [nome], callback);
     },
@@ -22,7 +22,7 @@ const Projetos = {
         `;
         db.query(query, callback);
     },
-    
+
     getById: (id, callback) => {
         const query = `
             SELECT 

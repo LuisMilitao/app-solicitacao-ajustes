@@ -120,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
     projetoSelect?.addEventListener('change', async function () {
         const nomeProjetoSelecionado = projetoSelect.value;
         if (!nomeProjetoSelecionado) return;
-
+    
         try {
             const response = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/projetos/nome/${encodeURIComponent(nomeProjetoSelecionado)}`, { headers: authHeader() });
             const projeto = await response.json();
-
+    
             if (projeto) {
-                document.getElementById('empresa_responsavel').value = projeto.empresa_id;
+                document.getElementById('empresa_responsavel').value = projeto.empresa; // <-- CORRIGIDO
                 document.getElementById('contatos').value = projeto.contatos || '';
             }
         } catch (error) {
