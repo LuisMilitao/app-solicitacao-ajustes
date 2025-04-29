@@ -15,6 +15,7 @@ const Projetos = {
             SELECT 
                 projetos.id, 
                 projetos.nome, 
+                projetos.empresa_id,
                 fornecedores.empresa AS empresa,
                 fornecedores.contatos AS contatos
             FROM projetos

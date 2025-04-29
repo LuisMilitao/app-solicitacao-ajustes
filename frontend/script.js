@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('edit_empresa_responsavel_id').value = '';
                 }
             }
-
+            console.log('[DEBUG] Valor de empresa_responsavel ID:', document.getElementById('edit_empresa_responsavel_id').value);
 
             // Atualizar automaticamente ao mudar projeto
             selectProjeto.addEventListener('change', atualizarEmpresaEContatos);
