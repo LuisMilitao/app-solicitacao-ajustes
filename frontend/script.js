@@ -354,6 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label>O que está acontecendo?:
                     <textarea name="o_que_esta_acontecendo">${formulario.o_que_esta_acontecendo || ''}</textarea>
                 </label>
+                <label>Nova Mídia (opcional):
+                    <input type="file" id="edit_midia" name="midia" accept="image/*,video/*">
+                </label>
                 <label>Justificação:
                     <textarea name="justificacao">${formulario.justificacao || ''}</textarea>
                 </label>
@@ -366,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label>Resolvido Por:
                     <input type="text" name="resolvido_por" value="${formulario.resolvido_por || ''}">
                 </label>
+                ${formulario.midia_url ? `<p>Mídia atual: <a href="${formulario.midia_url}" target="_blank">Ver mídia</a></p>` : ''}
                 <button type="submit">Salvar Alterações</button>
             </form>
         `;
@@ -406,28 +410,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // 7. Submissão do formulário de edição
             document.getElementById('form-edicao').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData.entries());
-
-                try {
-                    const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
+            
+                const formElement = e.target;
+                const formData = new FormData(formElement);
+                const midiaInput = document.getElementById('edit_midia');
+            
+                if (midiaInput.files.length > 0) {
+                    formData.append('midia', midiaInput.files[0]);
+            
+                    // ✅ Envia com multipart (mídia nova)
+                    await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}/midia`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+                        body: formData
+                    });
+                } else {
+                    // ✅ Envia com JSON (sem mídia)
+                    const data = Object.fromEntries(formData.entries());
+                    await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', ...authHeader() },
                         body: JSON.stringify(data)
                     });
-
-                    if (res.ok) {
-                        exibirMensagem('Formulário atualizado com sucesso!', 'success');
-                        modal.style.display = 'none';
-                        carregarFormularios();
-                    } else {
-                        throw new Error('Falha na atualização');
-                    }
-                } catch (error) {
-                    console.error('Erro ao atualizar formulário:', error);
-                    exibirMensagem('Erro ao atualizar formulário.', 'error');
                 }
+            
+                exibirMensagem('Formulário atualizado com sucesso!', 'success');
+                document.getElementById('modal-edicao').style.display = 'none';
+                carregarFormularios();
             });
+            
 
         } catch (error) {
             console.error('Erro ao carregar formulário para edição:', error);
@@ -706,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="linha"><span class="label">Solução:</span> ${form.solucao_a_ser_tomada || '-'}</div>
             <div class="linha"><span class="label">Sugestão:</span> ${form.sugestao || '-'}</div>
             <div class="linha"><span class="label">Resolvido por:</span> ${form.resolvido_por || '-'}</div>
-            ${form.midia_url ? `<div class="linha"><span class="label">Mídia:</span> <a href="${form.midia_url}" target="_blank">${form.midia_url}</a></div>` : ''}
+            ${form.midia_url ? `<div class="linha"><span class="label">Mídia:</span><br><img src="${form.midia_url}" style="max-width: 300px;"></div>` : ''}
         `;
 
             const printWindow = window.open('', '', 'width=800,height=600');
