@@ -71,23 +71,9 @@ const FormularioController = {
     },
 
     updateMultipart: (req, res) => {
-        upload.single('midia')(req, res, (err) => {
-            console.log('🟡 [DEBUG] Iniciando updateMultipart');
-            console.log('📦 [DEBUG] req.body:', req.body);
-            console.log('📎 [DEBUG] req.file:', req.file);
-    
-            if (err) {
-                console.error('❌ [ERRO multer]:', err);
-                return res.status(500).json({
-                    message: 'Erro ao processar o upload da mídia',
-                    error: err.message
-                });
-            }
-    
-            atualizarFormulario(req, res, req.file ? `/uploads/${req.file.filename}` : null);
-        });
+        const midia_url = req.file ? `/uploads/${req.file.filename}` : null;
+        atualizarFormulario(req, res, midia_url);
     },
-    
 
     delete: (req, res) => {
         const { id } = req.params;
@@ -149,4 +135,5 @@ function atualizarFormulario(req, res, midia_url) {
     }
 }
 
-module.exports = FormularioController;
+module.exports = { ...FormularioController, upload };
+
