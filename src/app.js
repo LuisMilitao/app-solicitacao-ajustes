@@ -35,6 +35,7 @@ app.use('/api/auth', authRoutes); // login e register
 app.use('/api/formulario', verificarToken, formularioRoutes);
 app.use('/api/fornecedores', verificarToken, fornecedoresRoutes);
 app.use('/api/projetos', verificarToken, projetosRoutes);
+app.use('/uploads', express.static('src/uploads'));
 
 
 // ✅ Inicialização

@@ -15,14 +15,14 @@ const Formulario = {
     create: (
         numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
         resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-        midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, callback
+        midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, callback
     ) => {
         db.query(
-            'INSERT INTO formulario (numero_chamado, nome_projeto, versao, empresa_responsavel, contatos, resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo, midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO formulario (numero_chamado, nome_projeto, versao, empresa_responsavel, contatos, resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo, midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
+                midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
             ],
             callback
         );
@@ -35,14 +35,14 @@ const Formulario = {
     update: (
         id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
         resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-        midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, callback
+        midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, callback
     ) => {
         db.query(
-            'UPDATE formulario SET numero_chamado = ?, nome_projeto = ?, versao = ?, empresa_responsavel = ?, contatos = ?, resumo_ajuste = ?, ambiente = ?, tipo_usuario = ?, rota_para_tela = ?, o_que_esta_acontecendo = ?, midia_url = ?, justificacao = ?, solucao_a_ser_tomada = ?, sugestao = ?, resolvido_por = ? WHERE id = ?',
+            'UPDATE formulario SET numero_chamado = ?, nome_projeto = ?, versao = ?, empresa_responsavel = ?, contatos = ?, resumo_ajuste = ?, ambiente = ?, tipo_usuario = ?, rota_para_tela = ?, o_que_esta_acontecendo = ?, midias_url = ?, justificacao = ?, solucao_a_ser_tomada = ?, sugestao = ?, resolvido_por = ? WHERE id = ?',
             [
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, id
+                midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por, id
             ],
             callback
         );

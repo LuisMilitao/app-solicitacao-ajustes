@@ -136,16 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-
     formulario?.addEventListener('submit', (event) => {
         event.preventDefault();
 
         const formData = new FormData(formulario);
         const midiaInput = document.getElementById('midia');
         if (midiaInput?.files.length > 0) {
-            formData.append('midia', midiaInput.files[0]);
-        }
+            for (let i = 0; i < midiaInput.files.length; i++) {
+                formData.append('midia', midiaInput.files[i]);
+            }
+        }        
 
         fetch('https://app-solicitacao-ajustes-production.up.railway.app/api/formulario', {
             method: 'POST',
@@ -692,10 +692,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
             });
-
+    
             const form = await res.json();
             const printArea = document.getElementById('print-area');
-
+    
             printArea.innerHTML = `
             <style>
                 body { font-family: Arial; padding: 20px; }
@@ -717,9 +717,21 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="linha"><span class="label">Solução:</span> ${form.solucao_a_ser_tomada || '-'}</div>
             <div class="linha"><span class="label">Sugestão:</span> ${form.sugestao || '-'}</div>
             <div class="linha"><span class="label">Resolvido por:</span> ${form.resolvido_por || '-'}</div>
-            ${form.midia_url ? `<div class="linha"><span class="label">Mídia:</span><br><img src="${form.midia_url}" style="max-width: 300px;"></div>` : ''}
-        `;
-
+            `;
+    
+            // ✅ Exibe todas as imagens
+            if (form.midias_url) {
+                const midias = JSON.parse(form.midias_url);
+                midias.forEach(url => {
+                    printArea.innerHTML += `
+                        <div class="linha">
+                            <span class="label">Mídia:</span><br>
+                            <img src="https://app-solicitacao-ajustes-production.up.railway.app${url}" style="max-width: 300px; margin-bottom: 10px;">
+                        </div>
+                    `;
+                });
+            }
+    
             const printWindow = window.open('', '', 'width=800,height=600');
             printWindow.document.write(printArea.innerHTML);
             printWindow.document.close();
@@ -729,4 +741,5 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(err);
         }
     }
+    
 });

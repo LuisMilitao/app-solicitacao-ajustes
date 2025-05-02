@@ -33,7 +33,7 @@ const FormularioController = {
     },
 
     create: (req, res) => {
-        upload.single('midia')(req, res, (err) => {
+        upload.array('midia')(req, res, (err) => {
             if (err) return res.status(500).json({ message: 'Erro ao processar arquivo', error: err.message });
 
             const {
@@ -42,12 +42,11 @@ const FormularioController = {
                 justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
             } = req.body;
 
-            const midia_url = req.file ? `/uploads/${req.file.filename}` : null;
+            const midias_url = req.files?.map(file => `/uploads/${file.filename}`);
 
             Formulario.create(
                 numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
-                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,JSON.stringify(midias_url), justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
                 (err, result) => {
                     if (err) return res.status(500).send(err);
                     res.status(201).json({ message: 'Formulário criado com sucesso', id: result.insertId });
@@ -71,8 +70,11 @@ const FormularioController = {
     },
 
     updateMultipart: (req, res) => {
-        const midia_url = req.file ? `/uploads/${req.file.filename}` : null;
-        atualizarFormulario(req, res, midia_url);
+        upload.array('midia')(req, res, (err) => {
+            if (err) return res.status(500).send(err);
+            const midias_url = req.files?.map(file => `/uploads/${file.filename}`) || [];
+            atualizarFormulario(req, res, JSON.stringify(midias_url));
+        });        
     },
 
     delete: (req, res) => {
@@ -85,7 +87,7 @@ const FormularioController = {
     }
 };
 
-function atualizarFormulario(req, res, midia_url) {
+function atualizarFormulario(req, res, midias_url) {
     const id = req.params.id || req.body.id;
     const {
         numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
@@ -93,23 +95,23 @@ function atualizarFormulario(req, res, midia_url) {
         justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
     } = req.body;
 
-    if (midia_url === null) {
-        // Buscar o midia_url atual do formulário
+    if (midias_url === null) {
+        // Buscar o midias_url atual do formulário
         Formulario.getById(id, (err, results) => {
             if (err) return res.status(500).send(err);
             if (results.length === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
 
-            const midiaAtual = results[0].midia_url; // mantém a mídia existente
+            const midiaAtual = results[0].midias_url; // mantém a mídia existente
             console.log('🧩 [DEBUG] Dados que serao salvos no update:', {
                 id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
+                midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
               });
 
             Formulario.update(
                 id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
                 resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-                midiaAtual, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+                midiasAtual, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
                 (err, result) => {
                     if (err) return res.status(500).send(err);
                     if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
@@ -122,7 +124,7 @@ function atualizarFormulario(req, res, midia_url) {
         Formulario.update(
             id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
             resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
-            midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
+            midias_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
             (err, result) => {
                 if (err) {
                     console.error('❌ [ERRO ao salvar no banco]:', err);
