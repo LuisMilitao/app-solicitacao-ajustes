@@ -114,6 +114,11 @@ function atualizarFormulario(req, res, midia_url) {
             if (results.length === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
 
             const midiaAtual = results[0].midia_url; // mantém a mídia existente
+            console.log('🧩 [DEBUG] Dados que serao salvos no update:', {
+                id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
+                resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
+                midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por
+              });
 
             Formulario.update(
                 id, numero_chamado, nome_projeto, versao, empresa_responsavel, contatos,
@@ -133,7 +138,10 @@ function atualizarFormulario(req, res, midia_url) {
             resumo_ajuste, ambiente, tipo_usuario, rota_para_tela, o_que_esta_acontecendo,
             midia_url, justificacao, solucao_a_ser_tomada, sugestao, resolvido_por,
             (err, result) => {
-                if (err) return res.status(500).send(err);
+                if (err) {
+                    console.error('❌ [ERRO ao salvar no banco]:', err);
+                    return res.status(500).send(err);
+                  }
                 if (result.affectedRows === 0) return res.status(404).json({ message: 'Formulário não encontrado' });
                 res.json({ message: 'Formulário atualizado com sucesso' });
             }
