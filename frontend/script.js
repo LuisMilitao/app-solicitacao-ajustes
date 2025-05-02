@@ -426,12 +426,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 } else {
                     // ✅ Envia com JSON (sem mídia)
-                    const data = Object.fromEntries(formData.entries());
-                    await fetch(`https://app-solicitacao-ajustes-production.up.railway.app/api/formulario/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', ...authHeader() },
-                        body: JSON.stringify(data)
-                    });
+                    if (formData.has('midia') && midiaInput.files.length > 0) {
+                        formData.append('midia', midiaInput.files[0]);
+                        await fetch(`/api/formulario/${id}/midia`, {
+                            method: 'PUT',
+                            headers: authHeader(),
+                            body: formData
+                        });
+                    } else {
+                        const plainData = Object.fromEntries(formData.entries());
+                        await fetch(`/api/formulario/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...authHeader()
+                            },
+                            body: JSON.stringify(plainData)
+                        });
+                    }
+                    
                 }
             
                 exibirMensagem('Formulário atualizado com sucesso!', 'success');
